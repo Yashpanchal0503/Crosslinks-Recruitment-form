@@ -175,6 +175,11 @@ const AdminDashboard = () => {
                   placeholder="Search name, email, roll..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full sm:w-60 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg pl-8 pr-3 py-2 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
                 />
                 <svg
@@ -210,7 +215,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-[300px]">
             <table className="w-full min-w-[800px]">
               <thead className="bg-slate-800/40">
                 <tr>
