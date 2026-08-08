@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { getApplications, updateApplicationStatus, getStats } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye } from "lucide-react";
+import { X, Eye, LogOut, Search, Filter, CheckCircle2, Clock, Users, UserCheck } from "lucide-react";
+import Navbar from "../components/common/Navbar";
+import CursorBlob from "../components/common/CursorBlob";
 
 const statusOptions = [
   "submitted",
@@ -15,17 +17,17 @@ const statusOptions = [
 const getStatusBadgeClass = (status) => {
   switch (status) {
     case "submitted":
-      return "bg-slate-500/10 text-slate-400 border border-slate-500/20";
+      return "bg-muted text-muted-foreground border-border";
     case "under-review":
-      return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+      return "bg-amber-500/10 text-amber-500 border-amber-500/20";
     case "shortlisted":
-      return "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+      return "bg-blue-500/10 text-blue-500 border-blue-500/20";
     case "rejected":
-      return "bg-red-500/10 text-red-400 border border-red-500/20";
+      return "bg-destructive/10 text-destructive border-destructive/20";
     case "selected":
-      return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+      return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
     default:
-      return "bg-slate-500/10 text-slate-400 border border-slate-500/20";
+      return "bg-muted text-muted-foreground border-border";
   }
 };
 
@@ -49,7 +51,7 @@ const AdminDashboard = () => {
       setAllApplications(appsRes.data.applications || appsRes.data);
       setStats(statsRes.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load data");
+      setError(err.response?.data?.message || "Failed to load applications data.");
     } finally {
       setLoading(false);
     }
@@ -65,11 +67,9 @@ const AdminDashboard = () => {
       setAllApplications((prev) =>
         prev.map((app) => (app._id === id ? { ...app, status: newStatus } : app))
       );
-      // Also update selectedApp status if it's currently open
       if (selectedApp && selectedApp._id === id) {
         setSelectedApp((prev) => ({ ...prev, status: newStatus }));
       }
-      // Refresh stats
       const statsRes = await getStats();
       setStats(statsRes.data);
     } catch (err) {
@@ -77,97 +77,93 @@ const AdminDashboard = () => {
     }
   };
 
-  // Perform instant real-time client-side filtering
-  const filteredApplications = allApplications.filter(app => {
-    // 1. Department Filter
+  const filteredApplications = allApplications.filter((app) => {
     const matchesDept = selectedDept === "All" || app.department === selectedDept;
-    
-    // 2. Search Filter (Case Insensitive)
     const query = searchQuery.trim().toLowerCase();
-    const matchesSearch = query === "" || 
+    const matchesSearch =
+      query === "" ||
       (app.personalDetails?.name || "").toLowerCase().includes(query) ||
       (app.personalDetails?.email || "").toLowerCase().includes(query) ||
       (app.personalDetails?.rollNumber || "").toLowerCase().includes(query);
-      
+
     return matchesDept && matchesSearch;
   });
 
   if (loading && allApplications.length === 0) {
     return (
-      <section className="min-h-screen bg-background p-6">
+      <div className="min-h-screen bg-background text-foreground p-6 pt-28">
+        <Navbar />
         <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
-          {/* Header Skeleton */}
           <div className="flex justify-between items-center">
             <div className="space-y-2">
-              <div className="h-8 w-52 bg-slate-800 rounded-md" />
-              <div className="h-4 w-36 bg-slate-800 rounded-md" />
+              <div className="h-8 w-52 bg-muted rounded-md" />
+              <div className="h-4 w-36 bg-muted rounded-md" />
             </div>
-            <div className="h-10 w-24 bg-slate-800 rounded-full" />
+            <div className="h-10 w-24 bg-muted rounded-full" />
           </div>
-
-          {/* Stats Skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-slate-800/40 border border-border/20 rounded-xl" />
+              <div key={i} className="h-24 bg-muted/40 border border-border rounded-xl" />
             ))}
           </div>
-
-          {/* Table Skeleton */}
-          <div className="bg-card/40 border border-border/30 rounded-2xl overflow-hidden">
-            <div className="p-6 border-b border-border/30 h-16 bg-slate-900/20" />
-            <div className="p-6 space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-12 bg-slate-800/50 rounded-xl" />
-              ))}
-            </div>
-          </div>
+          <div className="bg-card border border-border rounded-2xl h-96" />
         </div>
-      </section>
+      </div>
     );
   }
 
   return (
-    <section className="min-h-screen bg-background p-6">
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 pt-28 sm:pt-32 relative transition-colors duration-300">
+      <CursorBlob />
+      <Navbar />
+
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-sm text-slate-400">Welcome, {admin?.name || "Admin"}</p>
+            <p className="font-mono text-xs text-accent font-semibold tracking-widest uppercase mb-1">// ADMIN PANEL</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-sans">
+              Recruitment Submissions
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">Logged in as {admin?.name || "Admin"}</p>
           </div>
           <button
             onClick={logout}
-            className="px-5 py-2.5 rounded-full bg-violet-500/10 text-violet-300 border border-violet-500/30 hover:bg-violet-500/20 transition-all font-medium text-sm"
+            className="h-10 px-5 inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 text-accent font-semibold text-xs hover:bg-accent hover:text-accent-foreground transition-all duration-200 cursor-pointer"
           >
-            Logout
+            <LogOut size={14} /> Sign Out
           </button>
         </div>
 
         {error && (
-          <motion.p
-            initial={{ opacity: 0 }}
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1 }}
-            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm"
+            className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-semibold"
           >
-            {error}
-          </motion.p>
+            ⚠️ {error}
+          </motion.div>
         )}
 
-        {/* Stats Overview */}
+        {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <StatCard title="Total Applications" value={stats.totalApplications} />
-            <StatCard title="Pending Review" value={stats.pending} />
-            <StatCard title="Shortlisted" value={stats.shortlisted} />
-            <StatCard title="Selected" value={stats.selected} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+            <StatCard title="Total Applications" value={stats.totalApplications} icon={<Users className="w-4 h-4 text-accent" />} />
+            <StatCard title="Pending Review" value={stats.pending} icon={<Clock className="w-4 h-4 text-amber-500" />} />
+            <StatCard title="Shortlisted" value={stats.shortlisted} icon={<CheckCircle2 className="w-4 h-4 text-blue-500" />} />
+            <StatCard title="Selected" value={stats.selected} icon={<UserCheck className="w-4 h-4 text-emerald-500" />} />
           </div>
         )}
 
-        {/* Applications List */}
-        <div className="bg-card/40 backdrop-blur-sm rounded-2xl border border-border/30 overflow-hidden">
-          <div className="p-6 border-b border-border/30 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <h2 className="text-lg font-semibold text-white">Candidates Applications</h2>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+        {/* Applications List Table */}
+        <div className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl">
+          <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-foreground font-sans">Applicant Records</h2>
+              <p className="text-xs text-muted-foreground font-mono">// TOTAL {filteredApplications.length} CANDIDATES FOUND</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Search Bar */}
               <div className="relative">
                 <input
@@ -175,37 +171,19 @@ const AdminDashboard = () => {
                   placeholder="Search name, email, roll..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                    }
-                  }}
-                  className="w-full sm:w-60 bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg pl-8 pr-3 py-2 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
+                  className="w-full sm:w-64 input-field text-xs py-2 pl-9 pr-3 rounded-full"
                 />
-                <svg
-                  className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
 
-              {/* Filter */}
+              {/* Department Filter */}
               <div className="flex items-center gap-2">
-                <label className="text-[10px] font-mono text-slate-400 uppercase tracking-wider shrink-0">// DEPT:</label>
                 <select
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
-                  className="bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg px-3 py-2 focus:border-violet-500 focus:outline-none cursor-pointer"
+                  className="input-field text-xs py-2 px-3 rounded-full cursor-pointer"
                 >
-                  <option value="All">All Departments</option>
+                  <option value="All">All Domains</option>
                   <option value="Tech">Tech</option>
                   <option value="Graphic Design">Graphic Design</option>
                   <option value="Photography">Photography</option>
@@ -215,39 +193,40 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
+
           <div className="overflow-x-auto min-h-[300px]">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-slate-800/40">
+            <table className="w-full min-w-[750px]">
+              <thead className="bg-muted/50 border-b border-border">
                 <tr>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-slate-400">Name</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-slate-400">Email</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-slate-400">Department</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-slate-400">Status</th>
-                  <th className="p-4 text-center text-xs font-mono uppercase tracking-wider text-slate-400">Action</th>
+                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Name</th>
+                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Email</th>
+                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Department</th>
+                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Status</th>
+                  <th className="p-4 text-center text-xs font-mono uppercase tracking-wider text-muted-foreground">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/20">
+              <tbody className="divide-y divide-border/60">
                 {filteredApplications.map((app) => (
-                  <tr key={app._id} className="hover:bg-slate-800/20 transition-colors">
-                    <td className="p-4 text-slate-200 font-medium">{app.personalDetails?.name}</td>
-                    <td className="p-4 text-slate-400 text-sm">{app.personalDetails?.email}</td>
-                    <td className="p-4 text-slate-300 text-sm">{app.department}</td>
+                  <tr key={app._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="p-4 text-foreground font-semibold text-sm">{app.personalDetails?.name}</td>
+                    <td className="p-4 text-muted-foreground text-xs">{app.personalDetails?.email}</td>
+                    <td className="p-4 text-accent text-xs font-mono font-semibold">{app.department}</td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(app.status)}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(app.status)}`}>
                         {app.status}
                       </span>
                     </td>
-                    <td className="p-4 flex items-center justify-center gap-3">
+                    <td className="p-4 flex items-center justify-center gap-2">
                       <button
                         onClick={() => setSelectedApp(app)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
+                        className="h-8 px-3 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-xs text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer font-medium"
                       >
-                        <Eye size={14} /> View Details
+                        <Eye size={13} /> View
                       </button>
                       <select
                         value={app.status}
                         onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                        className="bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg p-1.5 focus:border-violet-500 focus:outline-none"
+                        className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2 focus:border-accent focus:outline-none cursor-pointer"
                       >
                         {statusOptions.map((opt) => (
                           <option key={opt} value={opt}>
@@ -260,8 +239,8 @@ const AdminDashboard = () => {
                 ))}
                 {filteredApplications.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">
-                      No applications found.
+                    <td colSpan={5} className="p-12 text-center text-muted-foreground text-sm font-mono">
+                      No matching candidate applications found.
                     </td>
                   </tr>
                 )}
@@ -275,77 +254,70 @@ const AdminDashboard = () => {
       <AnimatePresence>
         {selectedApp && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedApp(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/80 backdrop-blur-md"
             />
 
-            {/* Modal Content */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-xl overflow-hidden z-10 max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-2xl glass-card rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col border border-border"
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-border/40 bg-slate-900/40">
+              <div className="flex items-center justify-between p-6 border-b border-border bg-card">
                 <div>
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-xl font-bold text-foreground font-sans">
                     {selectedApp.personalDetails?.name}
                   </h3>
-                  <p className="text-xs text-violet-400 font-mono tracking-wider mt-0.5">// PROFILE DETAILS</p>
+                  <p className="text-xs text-accent font-mono tracking-wider mt-0.5">// CANDIDATE DOSSIER</p>
                 </div>
                 <button
                   onClick={() => setSelectedApp(null)}
-                  className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-all"
+                  className="h-8 w-8 rounded-full border border-border bg-muted flex items-center justify-center text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
               </div>
 
-              {/* Modal Body (Scrollable) */}
-              <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-slate-300">
-                {/* Personal Information */}
+              <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-foreground">
                 <div>
-                  <h4 className="text-xs font-mono text-violet-400 uppercase tracking-widest mb-3">// PERSONAL DETAILS</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-900/30 p-4 rounded-xl border border-border/20">
-                    <p><strong>Email:</strong> <span className="text-slate-200">{selectedApp.personalDetails?.email}</span></p>
-                    <p><strong>Roll Number:</strong> <span className="text-slate-200">{selectedApp.personalDetails?.rollNumber}</span></p>
-                    <p><strong>Contact:</strong> <span className="text-slate-200">{selectedApp.personalDetails?.contact}</span></p>
-                    <p><strong>Campus:</strong> <span className="text-slate-200">{selectedApp.personalDetails?.campus}</span></p>
-                    <p><strong>Branch:</strong> <span className="text-slate-200">{selectedApp.personalDetails?.branch}</span></p>
-                    <p><strong>Department:</strong> <span className="text-violet-400 font-semibold">{selectedApp.department}</span></p>
+                  <h4 className="text-xs font-mono text-accent uppercase tracking-widest mb-3 font-semibold">// PERSONAL DETAILS</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/40 p-4 rounded-2xl border border-border text-xs">
+                    <p><strong className="text-muted-foreground">Email:</strong> {selectedApp.personalDetails?.email}</p>
+                    <p><strong className="text-muted-foreground">Roll Number:</strong> {selectedApp.personalDetails?.rollNumber}</p>
+                    <p><strong className="text-muted-foreground">Contact:</strong> {selectedApp.personalDetails?.contact}</p>
+                    <p><strong className="text-muted-foreground">Campus:</strong> {selectedApp.personalDetails?.campus}</p>
+                    <p><strong className="text-muted-foreground">Branch & Year:</strong> {selectedApp.personalDetails?.branch}</p>
+                    <p><strong className="text-muted-foreground">Department:</strong> <span className="text-accent font-semibold">{selectedApp.department}</span></p>
                   </div>
                 </div>
 
-                {/* About & Why Join */}
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-xs font-mono text-violet-400 uppercase tracking-widest mb-1.5">// INTRODUCTION</h4>
-                    <p className="bg-slate-900/30 p-3.5 rounded-xl border border-border/20 text-slate-300 leading-relaxed">
+                    <h4 className="text-xs font-mono text-accent uppercase tracking-widest mb-1.5 font-semibold">// ABOUT CANDIDATE</h4>
+                    <p className="bg-muted/40 p-4 rounded-2xl border border-border text-xs leading-relaxed text-foreground">
                       {selectedApp.personalDetails?.introduction}
                     </p>
                   </div>
                   <div>
-                    <h4 className="text-xs font-mono text-violet-400 uppercase tracking-widest mb-1.5">// REASON TO JOIN</h4>
-                    <p className="bg-slate-900/30 p-3.5 rounded-xl border border-border/20 text-slate-300 leading-relaxed">
+                    <h4 className="text-xs font-mono text-accent uppercase tracking-widest mb-1.5 font-semibold">// REASON TO JOIN</h4>
+                    <p className="bg-muted/40 p-4 rounded-2xl border border-border text-xs leading-relaxed text-foreground">
                       {selectedApp.personalDetails?.reasonToJoin}
                     </p>
                   </div>
                 </div>
 
-                {/* Department-Specific Answers */}
                 <div>
-                  <h4 className="text-xs font-mono text-violet-400 uppercase tracking-widest mb-3">// {selectedApp.department.toUpperCase()} ANSWERS</h4>
-                  <div className="bg-slate-900/30 p-4 rounded-xl border border-border/20 space-y-3.5">
+                  <h4 className="text-xs font-mono text-accent uppercase tracking-widest mb-3 font-semibold">// {selectedApp.department.toUpperCase()} ANSWERS</h4>
+                  <div className="bg-muted/40 p-4 rounded-2xl border border-border space-y-3 text-xs">
                     {Object.entries(selectedApp.departmentAnswers || {}).length > 0 ? (
                       Object.entries(selectedApp.departmentAnswers).map(([key, val]) => (
                         <div key={key} className="space-y-1">
-                          <span className="text-xs font-mono text-slate-400 capitalize">
+                          <span className="text-xs font-mono text-muted-foreground uppercase font-semibold">
                             {key.replace(/([A-Z])/g, " $1")}
                           </span>
                           {typeof val === "string" && val.startsWith("http") ? (
@@ -354,28 +326,27 @@ const AdminDashboard = () => {
                                 href={val}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-violet-400 hover:underline inline-flex items-center gap-1"
+                                className="text-accent hover:underline inline-flex items-center gap-1 font-semibold"
                               >
                                 {val}
                               </a>
                             </p>
                           ) : (
-                            <p className="text-slate-200">{val || "N/A"}</p>
+                            <p className="text-foreground">{val || "N/A"}</p>
                           )}
                         </div>
                       ))
                     ) : (
-                      <p className="text-slate-400 text-xs">No specific answers provided.</p>
+                      <p className="text-muted-foreground text-xs font-mono">No department specific answers provided.</p>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Modal Footer */}
-              <div className="p-4 border-t border-border/40 bg-slate-900/40 flex items-center justify-between gap-4">
+              <div className="p-4 border-t border-border bg-card flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400 font-medium">Status:</span>
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
+                  <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
+                  <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
                     {selectedApp.status}
                   </span>
                 </div>
@@ -383,7 +354,7 @@ const AdminDashboard = () => {
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
-                    className="bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg p-2 focus:border-violet-500 focus:outline-none"
+                    className="h-9 bg-muted border border-border text-foreground text-xs rounded-full px-3 focus:border-accent focus:outline-none cursor-pointer font-medium"
                   >
                     {statusOptions.map((opt) => (
                       <option key={opt} value={opt}>
@@ -393,7 +364,7 @@ const AdminDashboard = () => {
                   </select>
                   <button
                     onClick={() => setSelectedApp(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-white rounded-lg text-xs font-medium border border-slate-700/60"
+                    className="h-9 px-5 bg-accent text-accent-foreground rounded-full text-xs font-semibold cursor-pointer"
                   >
                     Close
                   </button>
@@ -403,18 +374,21 @@ const AdminDashboard = () => {
           </div>
         )}
       </AnimatePresence>
-    </section>
+    </div>
   );
 };
 
-const StatCard = ({ title, value }) => (
+const StatCard = ({ title, value, icon }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     whileInView={{ opacity: 1, y: 0 }}
-    className="p-5 bg-card/40 backdrop-blur-sm rounded-xl border border-border/30 text-center"
+    className="p-5 glass-card rounded-2xl border border-border text-center flex flex-col items-center justify-center gap-1"
   >
-    <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1.5">{title}</p>
-    <p className="text-3xl font-extrabold text-white bg-clip-text bg-gradient-to-r from-white to-slate-300">
+    <div className="flex items-center gap-2 mb-1">
+      {icon}
+      <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground font-semibold">{title}</p>
+    </div>
+    <p className="text-3xl font-extrabold text-foreground font-sans">
       {value}
     </p>
   </motion.div>

@@ -11,43 +11,48 @@ const PhotographyForm = () => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl glass-card p-6 sm:p-8"
     >
-      <h3 className="text-xl sm:text-2xl font-semibold text-white mb-4">
-        Photography Department Questions
-      </h3>
+      <div className="mb-6 border-b border-border/60 pb-4">
+        <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-sans">
+          📸 Photography Department Questions
+        </h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          Tell us about your gear and share your portfolio or Instagram handle.
+        </p>
+      </div>
+
       <div className="space-y-6">
-        {/* Camera Gear */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="cameraGear">
-            Camera Gear you use
+            // Camera Gear / Phone Model You Use
           </label>
           <input
             id="cameraGear"
             type="text"
-            placeholder="Canon EOS 5D, Sony a7III..."
+            placeholder="e.g., Canon EOS 200D, Sony a7III, iPhone 15 Pro..."
             {...register("cameraGear")}
             className="input-field"
           />
           {errors.cameraGear && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs">
-              {errors.cameraGear.message}
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
+              ⚠️ {errors.cameraGear.message}
             </motion.p>
           )}
         </div>
-        {/* Portfolio Link */}
+
         <div className="space-y-2">
           <label className="input-label" htmlFor="portfolioLink">
-            Portfolio URL (optional)
+            // Portfolio / Drive / Instagram URL (Optional)
           </label>
           <input
             id="portfolioLink"
             type="url"
-            placeholder="https://your-photography-portfolio.com"
+            placeholder="https://instagram.com/yourphotography or Drive link..."
             {...register("portfolioLink")}
             className="input-field"
           />
           {errors.portfolioLink && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs">
-              {errors.portfolioLink.message}
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
+              ⚠️ {errors.portfolioLink.message}
             </motion.p>
           )}
         </div>
