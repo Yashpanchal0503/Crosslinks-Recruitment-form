@@ -31,7 +31,7 @@ const getStatusBadgeClass = (status) => {
 
 const AdminDashboard = () => {
   const { admin, logout } = useAuth();
-  const [applications, setApplications] = useState([]);
+  const [allApplications, setAllApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -39,21 +39,14 @@ const AdminDashboard = () => {
   const [selectedDept, setSelectedDept] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchData = async (dept, query = "") => {
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const params = {};
-      if (dept && dept !== "All") {
-        params.department = dept;
-      }
-      if (query.trim()) {
-        params.search = query.trim();
-      }
       const [appsRes, statsRes] = await Promise.all([
-        getApplications(params),
+        getApplications({ limit: 5000 }),
         getStats(),
       ]);
-      setApplications(appsRes.data.applications || appsRes.data);
+      setAllApplications(appsRes.data.applications || appsRes.data);
       setStats(statsRes.data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load data");
@@ -63,16 +56,13 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchData(selectedDept, searchQuery);
-    }, 300); // 300ms debounce
-    return () => clearTimeout(delayDebounce);
-  }, [selectedDept, searchQuery]);
+    fetchData();
+  }, []);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
       await updateApplicationStatus(id, newStatus);
-      setApplications((prev) =>
+      setAllApplications((prev) =>
         prev.map((app) => (app._id === id ? { ...app, status: newStatus } : app))
       );
       // Also update selectedApp status if it's currently open
@@ -87,7 +77,22 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading && applications.length === 0) {
+  // Perform instant real-time client-side filtering
+  const filteredApplications = allApplications.filter(app => {
+    // 1. Department Filter
+    const matchesDept = selectedDept === "All" || app.department === selectedDept;
+    
+    // 2. Search Filter (Case Insensitive)
+    const query = searchQuery.trim().toLowerCase();
+    const matchesSearch = query === "" || 
+      (app.personalDetails?.name || "").toLowerCase().includes(query) ||
+      (app.personalDetails?.email || "").toLowerCase().includes(query) ||
+      (app.personalDetails?.rollNumber || "").toLowerCase().includes(query);
+      
+    return matchesDept && matchesSearch;
+  });
+
+  if (loading && allApplications.length === 0) {
     return (
       <section className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
@@ -217,7 +222,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/20">
-                {applications.map((app) => (
+                {filteredApplications.map((app) => (
                   <tr key={app._id} className="hover:bg-slate-800/20 transition-colors">
                     <td className="p-4 text-slate-200 font-medium">{app.personalDetails?.name}</td>
                     <td className="p-4 text-slate-400 text-sm">{app.personalDetails?.email}</td>
@@ -248,7 +253,7 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {applications.length === 0 && (
+                {filteredApplications.length === 0 && (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-slate-400">
                       No applications found.
