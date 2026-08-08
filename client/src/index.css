@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #06060b;
+  --color-foreground: #eeeef2;
+  --color-card: #111118;
+  --color-card-foreground: #eeeef2;
+  --color-accent: #8B5CF6;
+  --color-accent-light: #A78BFA;
+  --color-accent-dark: #7C3AED;
+  --color-accent-foreground: #ffffff;
+  --color-muted: #16161e;
+  --color-muted-foreground: #71717a;
+  --color-border: #1f1f2e;
+  --color-border-light: #2a2a3d;
+  --color-destructive: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+
+  --font-display: 'Montserrat', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 999px; }
+
+/* Input styling */
+.input-field {
+  width: 100%;
+  background-color: var(--color-muted);
+  border: 1.5px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  transition: all 0.25s ease;
+  outline: none;
+}
+.input-field::placeholder { color: var(--color-muted-foreground); opacity: 0.6; }
+.input-field:focus { border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(139,92,246,0.15); background-color: var(--color-card); }
+.input-field:hover:not(:focus) { border-color: var(--color-border-light); }
+
+.input-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  color: var(--color-muted-foreground);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Background radial gradient glow utilities */
+.bg-glow-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  height: 600px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.bg-glow-circle {
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 500px;
+  border-radius: 9999px;
+  background-color: rgba(139, 92, 246, 0.08); /* bg-accent/8 */
+  filter: blur(100px);
+}
+.bg-glow-radial {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120, 119, 198, 0.1), rgba(255, 255, 255, 0));
+}
+
+/* Glassmorphism custom cards */
+.glass-card {
+  background-color: rgba(17, 17, 24, 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(139, 92, 246, 0.15);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  background-color: rgba(17, 17, 24, 0.55);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 20px 40px -15px rgba(139, 92, 246, 0.1), 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+}
