@@ -51,17 +51,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
-const limiter = rateLimit({
+const userLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: 50,
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
-app.use(limiter);
 
-app.use('/api/applications', applicationRoutes);
-app.get('/api/departments', getDepartments);
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  message: 'Too many admin requests from this IP, please try again after 15 minutes'
+});
+
+app.use('/api/applications', userLimiter, applicationRoutes);
+app.get('/api/departments', userLimiter, getDepartments);
+app.use('/api/auth', userLimiter, authRoutes);
+app.use('/api/admin', adminLimiter, adminRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
