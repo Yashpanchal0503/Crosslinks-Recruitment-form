@@ -24,17 +24,27 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl)
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
     if (!origin) return callback(null, true);
     
+    // Check if origin is explicitly allowed or matches a Vercel deployment of the app
     const isAllowed = allowedOrigins.some(allowed => {
-      return allowed === '*' || allowed === origin;
+      if (allowed === '*' || allowed === origin) return true;
+      
+      // Auto-allow Vercel subdomains if the user's main frontend domain is vercel.app
+      if (origin.endsWith('.vercel.app') && allowed.includes('vercel.app')) {
+        return true;
+      }
+      return false;
     });
+
+    console.log(`CORS Preflight - Origin: "${origin}" | Allowed: ${isAllowed}`);
 
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // Return false instead of throwing a 500 Error to avoid crashing the response headers
+      callback(null, false);
     }
   },
   credentials: true
@@ -43,7 +53,7 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 15,
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 app.use(limiter);
