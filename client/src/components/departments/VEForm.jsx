@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const VEForm = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -33,7 +37,7 @@ const VEForm = () => {
             {...register("editingSoftware")}
             className="input-field"
           />
-          {errors.editingSoftware && (
+          {shouldShowError("editingSoftware") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.editingSoftware.message}
             </motion.p>
@@ -43,10 +47,10 @@ const VEForm = () => {
         {/* Q2: Portfolio Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="portfolioLink">
-            // Share the drive link of some of your previous work *
+            // Share the drive link of some of your <u>previous work</u> *
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px]">
-            Ensure that the drive link has public view permissions enabled.
+            (<u>ensure that the drive link has required permissions</u>)
           </p>
           <input
             id="portfolioLink"
@@ -55,7 +59,7 @@ const VEForm = () => {
             {...register("portfolioLink")}
             className="input-field"
           />
-          {errors.portfolioLink && (
+          {shouldShowError("portfolioLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.portfolioLink.message}
             </motion.p>

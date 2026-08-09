@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 const TechForm = () => {
   const {
     register,
-    formState: { errors },
+    formState: { errors, touchedFields, isSubmitted },
   } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -36,7 +40,7 @@ const TechForm = () => {
             {...register("motivation")}
             className="input-field min-h-[110px] resize-y"
           />
-          {errors.motivation && (
+          {shouldShowError("motivation") && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -59,7 +63,7 @@ const TechForm = () => {
             {...register("skills")}
             className="input-field min-h-[90px] resize-y"
           />
-          {errors.skills && (
+          {shouldShowError("skills") && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
@@ -73,7 +77,7 @@ const TechForm = () => {
         {/* Q3: Portfolio/Git Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="portfolioLink">
-            // Kindly share your portfolio or any previous work you have undertaken *
+            // Kindly share your portfolio or any <u>previous work</u> you have undertaken *
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px]">
             Share this via your Git repository and make sure it's public.
@@ -85,7 +89,7 @@ const TechForm = () => {
             {...register("portfolioLink")}
             className="input-field"
           />
-          {errors.portfolioLink && (
+          {shouldShowError("portfolioLink") && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}

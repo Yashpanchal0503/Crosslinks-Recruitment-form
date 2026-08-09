@@ -38,7 +38,7 @@ const questionLabels = {
   interestReason: "Motivation to Join Graphic Design",
   softwaresUsed: "Softwares Used",
   taskLink: "Task Submission Link",
-  brownieLink: "Brownie Points Post Link",
+  brownieLink: "Introductory Post Link (Brownie Points)",
   previousWorkLink: "Previous Work Link / N/A",
   cameraModel: "Camera Model Used",
   phoneModel: "Phone Model Used",

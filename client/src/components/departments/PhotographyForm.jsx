@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const PhotographyForm = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -33,7 +37,7 @@ const PhotographyForm = () => {
             {...register("cameraModel")}
             className="input-field"
           />
-          {errors.cameraModel && (
+          {shouldShowError("cameraModel") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.cameraModel.message}
             </motion.p>
@@ -52,7 +56,7 @@ const PhotographyForm = () => {
             {...register("phoneModel")}
             className="input-field"
           />
-          {errors.phoneModel && (
+          {shouldShowError("phoneModel") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.phoneModel.message}
             </motion.p>
@@ -81,7 +85,7 @@ const PhotographyForm = () => {
               </label>
             ))}
           </div>
-          {errors.experienceLevel && (
+          {shouldShowError("experienceLevel") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.experienceLevel.message}
             </motion.p>
@@ -91,10 +95,11 @@ const PhotographyForm = () => {
         {/* Q4: Portfolio Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="portfolioLink">
-            // Share the drive link of some of your previous work *
+            // Share the drive link of some of your <u>previous work</u> *
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px] leading-normal">
-            Note: Upload your 20 best photos, also provide photography instagram page link inside the folder (if any). Ensure public view access.
+            (<u>please provide view access</u>)<br />
+            Note: Upload your 20 best photos, also provide photography instagram page, if any.
           </p>
           <input
             id="portfolioLink"
@@ -103,7 +108,7 @@ const PhotographyForm = () => {
             {...register("portfolioLink")}
             className="input-field"
           />
-          {errors.portfolioLink && (
+          {shouldShowError("portfolioLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.portfolioLink.message}
             </motion.p>

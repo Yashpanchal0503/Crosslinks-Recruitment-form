@@ -3,7 +3,12 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const GDForm = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+
+  // Helper to determine if we should show the validation error for a field
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -15,8 +20,9 @@ const GDForm = () => {
         <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-sans">
           🎨 Graphic Design Department Questions
         </h3>
-        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Complete the design tasks and share your project files and interest.
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1 text-justify leading-relaxed">
+          Please include a Google Drive link to your <u>previous work</u>, ideally the original project files with all layers and assets intact (for example, a PSD file). This helps us confirm the work is yours.<br />
+          Not submitting project files won't count against you. However, if we find any plagiarism or AI-generated work passed off as your own, your application and any future applications to Crosslinks will be voided. Project files help us verify authenticity and assess your actual skill level.
         </p>
       </div>
 
@@ -33,7 +39,7 @@ const GDForm = () => {
             {...register("interestReason")}
             className="input-field min-h-[110px] resize-y"
           />
-          {errors.interestReason && (
+          {shouldShowError("interestReason") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.interestReason.message}
             </motion.p>
@@ -58,7 +64,7 @@ const GDForm = () => {
               </label>
             ))}
           </div>
-          {errors.softwaresUsed && (
+          {shouldShowError("softwaresUsed") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.softwaresUsed.message}
             </motion.p>
@@ -70,10 +76,33 @@ const GDForm = () => {
           <label className="input-label" htmlFor="taskLink">
             // Add your post design link here *
           </label>
-          <p className="text-[11px] text-muted-foreground mt-[-4px] leading-normal">
-            <strong>Task:</strong> Do any one of the following design tasks: NSUTTHON After-movie cover page OR Redesign NSUT Yearbook 2026 Front & Back Page. <br />
-            Logo file: <a href="https://drive.google.com/file/d/139KNSDVUtT9jp96UVxjLfvk5udS5_oTZ/view?usp=sharing" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">Download Logo</a>. Dimension: 1080x1920.
-          </p>
+          
+          <div className="text-[11px] text-slate-300 bg-slate-950/40 p-3.5 rounded-xl border border-border/40 leading-relaxed space-y-2">
+            <p>
+              <strong>Task:</strong> Do <u>any one</u> of the following design tasks: <br />
+              1. <strong>NSUTTHON After-movie cover page</strong> <br />
+              2. <strong>Redesign NSUT Yearbook 2026 Front & Back Page</strong>
+            </p>
+            <p>
+              🔗 <strong>Logo file link:</strong> <a href="https://drive.google.com/file/d/139KNSDVUtT9jp96UVxjLfvk5udS5_oTZ/view?usp=sharing" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">Download Crosslinks Logo</a><br />
+              Dimension requirement: 1080x1920.<br />
+              Check out our Instagram handle for a better understanding: <a href="https://www.instagram.com/crosslinks.nsut/" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">@crosslinks.nsut</a>
+            </p>
+            <p>
+              Reel reference for NSUTTHON cover: <a href="https://www.instagram.com/p/DBwFd7YsAM_/" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">View Reel</a>
+            </p>
+          </div>
+
+          {/* Yearbook 2026 Sample Image directly in form */}
+          <div className="my-4 p-2.5 bg-slate-900/60 rounded-xl border border-border/50 max-w-md mx-auto">
+            <p className="text-[10px] font-mono text-slate-400 mb-1.5 text-center tracking-wider">// YEARBOOK 2026 SAMPLE REFERENCE</p>
+            <img 
+              src="/yearbook_sample.png" 
+              alt="Yearbook 2026 Sample" 
+              className="w-full h-auto rounded-lg border border-border/20 shadow-md"
+            />
+          </div>
+
           <input
             id="taskLink"
             type="text"
@@ -81,7 +110,7 @@ const GDForm = () => {
             {...register("taskLink")}
             className="input-field"
           />
-          {errors.taskLink && (
+          {shouldShowError("taskLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.taskLink.message}
             </motion.p>
@@ -91,10 +120,10 @@ const GDForm = () => {
         {/* Q4: Brownie Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="brownieLink">
-            // Add your brownie points submission link here (Optional)
+            // If you want to earn some extra points (aka brownie points) during recruitment: Suppose you get selected for crosslinks, Design an introductory post, introducing yourself on the crosslinks page (Optional)
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px] leading-normal">
-            <strong>Brownie Points Task:</strong> Design an introductory post, introducing yourself on the crosslinks page.
+            You can add your submission link right here:
           </p>
           <input
             id="brownieLink"
@@ -103,7 +132,7 @@ const GDForm = () => {
             {...register("brownieLink")}
             className="input-field"
           />
-          {errors.brownieLink && (
+          {shouldShowError("brownieLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.brownieLink.message}
             </motion.p>
@@ -113,8 +142,11 @@ const GDForm = () => {
         {/* Q5: Previous Work Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="previousWorkLink">
-            // Attach a drive link of your previous work if any, else type N/A *
+            // Attach a drive link of your <u>previous work</u> if any, else type N/A *
           </label>
+          <p className="text-[11px] text-muted-foreground mt-[-4px]">
+            (<u>Give Public permission access to the drive folder</u>)
+          </p>
           <input
             id="previousWorkLink"
             type="text"
@@ -122,7 +154,7 @@ const GDForm = () => {
             {...register("previousWorkLink")}
             className="input-field"
           />
-          {errors.previousWorkLink && (
+          {errors.previousWorkLink && shouldShowError("previousWorkLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.previousWorkLink.message}
             </motion.p>

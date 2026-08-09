@@ -136,12 +136,12 @@ body {
 .input-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   letter-spacing: 0.08em;
-  color: var(--muted-foreground);
+  color: #e2e8f0; /* Brighter, highly visible slate color */
   margin-bottom: 8px;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700; /* Bolder label text */
 }
 
 /* Glassmorphism Cards */

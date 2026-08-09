@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const ContentForm = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -16,7 +20,7 @@ const ContentForm = () => {
           ✍️ Content Department Questions
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Share your writing, imagination, and links to previous work. (Word limit: 200 per answer)
+          Share your writing, imagination, and links to previous work. (<u>Maximum word limit- 200</u> per answer)
         </p>
       </div>
 
@@ -33,7 +37,7 @@ const ContentForm = () => {
             {...register("controversialOpinion")}
             className="input-field min-h-[110px] resize-y"
           />
-          {errors.controversialOpinion && (
+          {shouldShowError("controversialOpinion") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.controversialOpinion.message}
             </motion.p>
@@ -52,7 +56,7 @@ const ContentForm = () => {
             {...register("deskItemStory")}
             className="input-field min-h-[110px] resize-y"
           />
-          {errors.deskItemStory && (
+          {shouldShowError("deskItemStory") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.deskItemStory.message}
             </motion.p>
@@ -62,10 +66,10 @@ const ContentForm = () => {
         {/* Q3: Portfolio Link */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="portfolioLink">
-            // Share the drive link to some of your previous works here *
+            // Share the drive link to some of your <u>previous works</u> here *
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px]">
-            Ensure that the drive link has public view permissions.
+            (<u>ensure that the drive link has required permissions</u>)
           </p>
           <input
             id="portfolioLink"
@@ -74,7 +78,7 @@ const ContentForm = () => {
             {...register("portfolioLink")}
             className="input-field"
           />
-          {errors.portfolioLink && (
+          {shouldShowError("portfolioLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
               ⚠️ {errors.portfolioLink.message}
             </motion.p>

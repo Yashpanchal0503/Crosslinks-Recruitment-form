@@ -19,14 +19,15 @@ import CursorBlob from "../components/common/CursorBlob";
 const Application = () => {
   const [stage, setStage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const methods = useForm({
-    mode: "onTouched",
+    mode: "onSubmit",
     resolver: async (data, context, options) => {
       let schema;
-      if (stage === 1) {
+      if (stage === 1 || !isSubmitTriggered) {
         schema = personalDetailsSchema;
       } else {
         const deptSchema = getDepartmentSchema(data.department);
@@ -37,7 +38,7 @@ const Application = () => {
     defaultValues: { campus: "Main", department: "" },
   });
 
-  const { handleSubmit, trigger, watch } = methods;
+  const { handleSubmit, trigger, watch, clearErrors } = methods;
   const selectedDept = watch("department");
 
   const onNext = async () => {
@@ -53,18 +54,28 @@ const Application = () => {
       "department",
     ]);
     if (isValid) {
+      clearErrors();
       setStage(2);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const onPrev = () => {
+    setIsSubmitTriggered(false);
     setStage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const onSubmit = async (data) => {
     if (stage !== 2) return;
+    
+    // Enable Stage 2 validation
+    setIsSubmitTriggered(true);
+    
+    // Manually trigger full form validation
+    const isValid = await trigger();
+    if (!isValid) return;
+
     setIsSubmitting(true);
     setError("");
     try {
