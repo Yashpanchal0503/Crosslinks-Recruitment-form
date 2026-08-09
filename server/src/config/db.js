@@ -32,7 +32,8 @@ const autoSeedAdmin = async () => {
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/crosslinks_recruitment';
+    const conn = await mongoose.connect(mongoUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     await autoSeedAdmin();
   } catch (error) {

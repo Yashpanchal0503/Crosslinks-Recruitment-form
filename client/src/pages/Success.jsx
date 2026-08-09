@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2, Home } from "lucide-react";
+import Navbar from "../components/common/Navbar";
+import CursorBlob from "../components/common/CursorBlob";
 
-// Independent Canvas-based Confetti Particle Emitter for superior UX
 const Confetti = () => {
   const canvasRef = useRef(null);
 
@@ -15,10 +16,10 @@ const Confetti = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ["#8B5CF6", "#A78BFA", "#C084FC", "#3B82F6", "#60A5FA"];
+    const colors = ["#8B5CF6", "#A78BFA", "#C084FC", "#3B82F6", "#EC4899"];
     const particles = [];
 
-    for (let i = 0; i < 120; i++) {
+    for (let i = 0; i < 100; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height - canvas.height,
@@ -47,7 +48,6 @@ const Confetti = () => {
         ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
         ctx.stroke();
 
-        // Recycle particles
         if (p.y > canvas.height) {
           particles[idx] = {
             ...p,
@@ -75,35 +75,31 @@ const Confetti = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none w-full h-full z-0" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none w-full h-full z-0 opacity-70" />;
 };
 
 const Success = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  // Extract name & department from navigation state (fallbacks if undefined)
-  const { name = "Applicant", department = "" } = location.state || {};
-
-  const handleNewApplication = () => {
-    navigate("/");
-  };
+  const { name = "Applicant", department = "Crosslinks" } = location.state || {};
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 relative overflow-hidden">
-      {/* Confetti Background Layer */}
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center px-4 relative overflow-hidden transition-colors duration-300">
+      <CursorBlob />
+      <Navbar />
       <Confetti />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.92, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-lg w-full bg-card/70 backdrop-blur-md rounded-2xl p-8 text-center border border-border/30 shadow-2xl relative z-10"
+        className="max-w-lg w-full glass-card rounded-3xl p-8 sm:p-10 text-center relative z-10 shadow-2xl"
       >
-        {/* Glowing self-drawing checkmark icon */}
+        {/* Animated Checkmark Badge */}
         <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center relative shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+          <div className="w-20 h-20 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center relative shadow-[0_0_30px_var(--accent)]">
             <svg
-              className="w-10 h-10 text-violet-400"
+              className="w-10 h-10 text-accent"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -121,20 +117,24 @@ const Success = () => {
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
+        <p className="font-mono text-xs text-accent font-semibold tracking-widest uppercase mb-1">// APPLICATION RECEIVED</p>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3 tracking-tight font-sans">
           Thank you, {name}!
         </h2>
-        <p className="text-slate-300 mb-6 text-sm leading-relaxed">
-          Your application for the <strong className="text-violet-400 font-semibold">{department}</strong> department has been received successfully.
+        <p className="text-muted-foreground mb-8 text-sm leading-relaxed">
+          Your recruitment form for the <strong className="text-accent font-semibold">{department}</strong> domain has been submitted successfully to the Crosslinks core team.
         </p>
-        <button
-          onClick={handleNewApplication}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-medium text-sm py-3 px-8 rounded-full shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 cursor-pointer"
-        >
-          Submit Another Application <ArrowRight size={16} />
-        </button>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={() => navigate("/")}
+            className="w-full sm:w-auto h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-accent text-accent-foreground font-semibold text-sm shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-105 transition-all duration-300 cursor-pointer"
+          >
+            Submit Another Form <ArrowRight size={16} />
+          </button>
+        </div>
       </motion.div>
-    </section>
+    </div>
   );
 };
 

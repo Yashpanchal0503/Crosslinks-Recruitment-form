@@ -4,7 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalDetailsSchema, getDepartmentSchema } from "../schemas/applicationSchema";
 import { submitApplication } from "../services/api";
-import { ArrowLeft, ArrowRight, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PersonalDetails from "../components/common/PersonalDetails";
 import DepartmentSelector from "../components/common/DepartmentSelector";
@@ -13,8 +13,8 @@ import GDForm from "../components/departments/GDForm";
 import PhotographyForm from "../components/departments/PhotographyForm";
 import ContentForm from "../components/departments/ContentForm";
 import VEForm from "../components/departments/VEForm";
-
 import Navbar from "../components/common/Navbar";
+import CursorBlob from "../components/common/CursorBlob";
 
 const Application = () => {
   const [stage, setStage] = useState(1);
@@ -71,7 +71,7 @@ const Application = () => {
       await submitApplication(data);
       navigate("/success", { state: { name: data.fullName, department: data.department } });
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong.");
+      setError(err.response?.data?.message || "Failed to submit application. Please check your connection and try again.");
       setIsSubmitting(false);
     }
   };
@@ -94,83 +94,98 @@ const Application = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 relative overflow-x-hidden px-4 sm:px-6 lg:px-8">
-      {/* Glow effects matching reference site */}
-      <div className="bg-glow-container">
-        <div className="bg-glow-circle" />
-        <div className="bg-glow-radial" />
-      </div>
-
-      {/* Navbar */}
+    <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden transition-colors duration-300">
+      <CursorBlob />
       <Navbar />
 
-      <main className="max-w-4xl mx-auto pt-28 pb-12 sm:pb-16 relative z-10">
-        {/* Progress Header / Enhanced Stepper */}
-        <div className="mb-10 p-6 sm:p-8 rounded-2xl bg-slate-800/40 border border-border/50 backdrop-blur-md relative overflow-hidden">
-          {/* Subtle background glow */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="flex items-center justify-between mb-6">
+      {/* Top Ambient Glow Background Circles */}
+      <div className="pointer-events-none fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-96 z-0 overflow-hidden">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-accent/10 blur-[140px]" />
+      </div>
+
+      <main className="max-w-4xl mx-auto pt-28 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 relative z-10">
+        {/* Page Hero Header */}
+        <div className="text-center mb-10 sm:mb-12">
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-mono text-xs sm:text-sm text-accent font-semibold tracking-widest uppercase mb-2"
+          >
+            // RECRUITMENTS 2026
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="tracking-tight text-5xl sm:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
+          >
+            <span className="font-druk font-bold tracking-wider">join the</span>
+            <span className="font-display font-bold italic text-accent lowercase text-[1.1em] ml-4 sm:ml-5">team</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed font-sans"
+          >
+            Be part of NSUT's Student & Public Relations Society. Fill out the application form below to start your journey.
+          </motion.p>
+        </div>
+
+        {/* Stepper Header */}
+        <div className="mb-8 p-5 sm:p-7 rounded-2xl glass-card relative overflow-hidden">
+          <div className="flex items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Application Form</h2>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">// RECRUITMENT FLOW</p>
+              <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight font-sans">
+                Application Progress
+              </h2>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5">// STEP {stage} OF 2</p>
             </div>
-            <span className="px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold">
-              Step {stage} of 2
+            <span className="px-3.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-semibold font-mono">
+              {stage === 1 ? "01 / 02" : "02 / 02"}
             </span>
           </div>
 
-          {/* Enhanced Progress Bar with Nodes */}
-          <div className="relative my-8 px-4">
-            {/* Background Line */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-slate-800 rounded-full" />
+          {/* Stepper Progress Bar */}
+          <div className="relative my-4 px-2">
+            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1.5 bg-muted rounded-full" />
             
-            {/* Progress Line */}
             <motion.div
               initial={{ width: "0%" }}
               animate={{ width: stage === 1 ? "0%" : "100%" }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-gradient-to-r from-violet-500 to-purple-600 rounded-full shadow-[0_0_12px_rgba(139,92,246,0.5)]"
+              className="absolute top-1/2 -translate-y-1/2 left-0 h-1.5 bg-accent rounded-full shadow-[0_0_12px_var(--accent)]"
             />
 
-            {/* Stepper Nodes */}
             <div className="relative flex justify-between">
               {/* Step 1 Node */}
               <div className="flex flex-col items-center">
-                <motion.div
-                  animate={{
-                    scale: stage >= 1 ? 1.05 : 1,
-                    borderColor: stage >= 1 ? "#8B5CF6" : "#475569",
-                  }}
-                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs z-10 transition-all duration-300
-                    ${stage > 1 
-                      ? "bg-violet-500 border-violet-500 text-white shadow-[0_0_12px_rgba(139,92,246,0.4)]" 
-                      : "bg-slate-900 text-slate-300 border-slate-600"
-                    }`}
+                <div
+                  className={`w-9 h-9 rounded-full border-2 flex items-center justify-center font-bold text-xs z-10 transition-all duration-300 ${
+                    stage >= 1
+                      ? "bg-accent border-accent text-accent-foreground shadow-lg shadow-accent/25"
+                      : "bg-card text-muted-foreground border-border"
+                  }`}
                 >
                   {stage > 1 ? "✓" : "1"}
-                </motion.div>
-                <span className={`text-[11px] font-mono mt-2.5 transition-colors duration-300 ${stage >= 1 ? "text-violet-400 font-semibold" : "text-slate-500"}`}>
+                </div>
+                <span className={`text-xs font-mono mt-2 font-semibold transition-colors ${stage >= 1 ? "text-accent" : "text-muted-foreground"}`}>
                   Personal Details
                 </span>
               </div>
 
               {/* Step 2 Node */}
               <div className="flex flex-col items-center">
-                <motion.div
-                  animate={{
-                    scale: stage >= 2 ? 1.05 : 1,
-                    borderColor: stage >= 2 ? "#8B5CF6" : "#475569",
-                  }}
-                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-bold text-xs z-10 transition-all duration-300
-                    ${stage === 2 
-                      ? "bg-slate-900 border-violet-500 text-violet-400 shadow-[0_0_12px_rgba(139,92,246,0.4)] ring-2 ring-violet-500/20" 
-                      : "bg-slate-900 text-slate-500 border-slate-700"
-                    }`}
+                <div
+                  className={`w-9 h-9 rounded-full border-2 flex items-center justify-center font-bold text-xs z-10 transition-all duration-300 ${
+                    stage === 2
+                      ? "bg-accent border-accent text-accent-foreground shadow-lg shadow-accent/25"
+                      : "bg-card text-muted-foreground border-border"
+                  }`}
                 >
                   2
-                </motion.div>
-                <span className={`text-[11px] font-mono mt-2.5 transition-colors duration-300 ${stage >= 2 ? "text-violet-400 font-semibold" : "text-slate-500"}`}>
+                </div>
+                <span className={`text-xs font-mono mt-2 font-semibold transition-colors ${stage >= 2 ? "text-accent" : "text-muted-foreground"}`}>
                   Dept. Questions
                 </span>
               </div>
@@ -182,9 +197,9 @@ const Application = () => {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-3"
+            className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs sm:text-sm font-semibold flex items-center gap-3"
           >
-            {error}
+            ⚠️ {error}
           </motion.div>
         )}
 
@@ -192,7 +207,7 @@ const Application = () => {
           <form
             onSubmit={handleSubmit(onSubmit)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
+              if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
                 e.preventDefault();
               }
             }}
@@ -224,15 +239,16 @@ const Application = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-            {/* Navigation Buttons */}
-            <div className="mt-8 flex items-center justify-between gap-4">
+
+            {/* Navigation & Submit Action Buttons styled after Alumni Meet CTA */}
+            <div className="mt-10 flex items-center justify-between gap-4">
               {stage > 1 ? (
                 <button
                   type="button"
                   onClick={onPrev}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-sm text-white bg-slate-800 border border-slate-700 hover:bg-slate-700 transition-all"
+                  className="h-11 sm:h-12 px-6 sm:px-7 inline-flex items-center gap-2 rounded-full border border-border bg-card text-foreground hover:bg-muted font-semibold text-sm transition-all duration-300 cursor-pointer shadow-sm"
                 >
-                  <ArrowLeft size={16} /> Back
+                  <ArrowLeft size={16} /> Back to Details
                 </button>
               ) : (
                 <div />
@@ -242,20 +258,27 @@ const Application = () => {
                 <button
                   type="button"
                   onClick={onNext}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-medium text-sm px-8 py-3 rounded-xl shadow-lg shadow-violet-500/25 transition-all"
+                  data-hover-arrow="true"
+                  className="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center rounded-full border border-accent/80 text-accent bg-accent/5 backdrop-blur-sm text-sm sm:text-base font-semibold transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:border-accent cursor-pointer whitespace-nowrap"
                 >
-                  Next Step <ArrowRight size={16} />
+                  <span>Next Step</span>
                 </button>
               ) : (
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-medium text-sm px-8 py-3 rounded-xl shadow-lg shadow-violet-500/25 transition-all disabled:opacity-60"
+                  data-hover-arrow="true"
+                  className="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center gap-2.5 rounded-full border border-accent/80 text-accent bg-accent/5 backdrop-blur-sm text-sm sm:text-base font-semibold transition-all duration-300 hover:bg-accent hover:text-accent-foreground hover:border-accent cursor-pointer disabled:opacity-60 whitespace-nowrap"
                 >
                   {isSubmitting ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+                      <span>Submitting Application...</span>
+                    </div>
                   ) : (
-                    <>Submit Application <Send size={15} /></>
+                    <span className="flex items-center gap-2">
+                      Submit Application <Send size={16} />
+                    </span>
                   )}
                 </button>
               )}

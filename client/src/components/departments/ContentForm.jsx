@@ -11,43 +11,48 @@ const ContentForm = () => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl glass-card p-6 sm:p-8"
     >
-      <h3 className="text-xl sm:text-2xl font-semibold text-white mb-4">
-        Content Department Questions
-      </h3>
+      <div className="mb-6 border-b border-border/60 pb-4">
+        <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-sans">
+          ✍️ Content Department Questions
+        </h3>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+          Share your writing experience, topics of interest, and sample links.
+        </p>
+      </div>
+
       <div className="space-y-6">
-        {/* Writing Samples */}
-        <div className="space-y-2">
-          <label className="input-label" htmlFor="writingSamples">
-            Writing Sample URL (optional)
-          </label>
-          <input
-            id="writingSamples"
-            type="url"
-            placeholder="https://your-sample.com"
-            {...register("writingSamples")}
-            className="input-field"
-          />
-          {errors.writingSamples && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs">
-              {errors.writingSamples.message}
-            </motion.p>
-          )}
-        </div>
-        {/* Topics of Interest */}
         <div className="space-y-2">
           <label className="input-label" htmlFor="topicsOfInterest">
-            Topics of Interest
+            // Topics of Interest
           </label>
           <input
             id="topicsOfInterest"
             type="text"
-            placeholder="Tech, Culture, Education..."
+            placeholder="e.g., Festival Coverage, Tech Trends, Pop Culture, Copywriting"
             {...register("topicsOfInterest")}
             className="input-field"
           />
           {errors.topicsOfInterest && (
-            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-red-400 text-xs">
-              {errors.topicsOfInterest.message}
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
+              ⚠️ {errors.topicsOfInterest.message}
+            </motion.p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label className="input-label" htmlFor="writingSamples">
+            // Writing Samples / Article URL (Optional)
+          </label>
+          <input
+            id="writingSamples"
+            type="url"
+            placeholder="https://medium.com/your-article or Drive link..."
+            {...register("writingSamples")}
+            className="input-field"
+          />
+          {errors.writingSamples && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
+              ⚠️ {errors.writingSamples.message}
             </motion.p>
           )}
         </div>
