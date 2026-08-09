@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const PhotographyForm = () => {
-  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+  const { register, watch, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
 
   const shouldShowError = (fieldName) => {
     return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
@@ -68,22 +68,37 @@ const PhotographyForm = () => {
           <label className="input-label">
             // How would you describe your current level in photography? *
           </label>
-          <div className="flex flex-col gap-3 p-3 bg-slate-900/40 rounded-xl border border-border/40">
+          <div className="flex flex-col gap-3">
             {[
-              { value: "Beginner", label: "Beginner : New but interested" },
-              { value: "Intermediate", label: "Intermediate : Practiced and clicked actively" },
-              { value: "Advanced", label: "Advanced : Understands manual settings, composition and editing" }
-            ].map((option) => (
-              <label key={option.value} className="flex items-start gap-2.5 text-slate-300 text-xs sm:text-sm cursor-pointer select-none">
-                <input
-                  type="radio"
-                  value={option.value}
-                  {...register("experienceLevel")}
-                  className="w-4 h-4 rounded-full border-slate-700 text-violet-500 bg-slate-900 focus:ring-violet-500/30 mt-0.5"
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
+              { value: "Beginner", title: "Beginner", desc: "New but interested" },
+              { value: "Intermediate", title: "Intermediate", desc: "Practiced and clicked actively" },
+              { value: "Advanced", title: "Advanced", desc: "Understands manual settings, composition and editing" }
+            ].map((option) => {
+              const isChecked = watch("experienceLevel") === option.value;
+              return (
+                <label
+                  key={option.value}
+                  className={`flex flex-col p-4 rounded-xl border cursor-pointer select-none transition-all duration-300 ${
+                    isChecked
+                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.01]"
+                      : "border-border/80 bg-slate-900/40 text-slate-300 hover:border-accent/60 hover:text-white"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value={option.value}
+                    {...register("experienceLevel")}
+                    className="sr-only"
+                  />
+                  <span className={`text-sm font-bold font-sans ${isChecked ? "text-accent" : "text-foreground"}`}>
+                    {option.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground mt-1 leading-normal">
+                    {option.desc}
+                  </span>
+                </label>
+              );
+            })}
           </div>
           {shouldShowError("experienceLevel") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">

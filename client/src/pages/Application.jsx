@@ -41,6 +41,20 @@ const Application = () => {
   const { handleSubmit, trigger, watch, clearErrors } = methods;
   const selectedDept = watch("department");
 
+  const scrollToFirstError = (currentErrors) => {
+    const errorKeys = Object.keys(currentErrors);
+    if (errorKeys.length > 0) {
+      const firstErrorKey = errorKeys[0];
+      const element = document.getElementById(firstErrorKey) || document.getElementsByName(firstErrorKey)[0];
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => {
+          element.focus({ preventScroll: true });
+        }, 100);
+      }
+    }
+  };
+
   const onNext = async () => {
     const isValid = await trigger([
       "fullName",
@@ -57,6 +71,10 @@ const Application = () => {
       clearErrors();
       setStage(2);
       window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setTimeout(() => {
+        scrollToFirstError(methods.formState.errors);
+      }, 50);
     }
   };
 
@@ -74,7 +92,12 @@ const Application = () => {
     
     // Manually trigger full form validation
     const isValid = await trigger();
-    if (!isValid) return;
+    if (!isValid) {
+      setTimeout(() => {
+        scrollToFirstError(methods.formState.errors);
+      }, 50);
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
