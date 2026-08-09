@@ -40,7 +40,11 @@ const PersonalDetails = () => {
         </div>
         {/* Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+<<<<<<< HEAD
           <Field label="Roll Number" name="rollNumber" placeholder="2026UIN3341" />
+=======
+          <Field label="Roll Number" name="rollNumber" placeholder="2025UCD2117" />
+>>>>>>> b30aa32 (Save current recruitment portal UI design system and layout)
           <Field label="Contact Number" name="contactNumber" placeholder="9876543210" />
         </div>
         {/* Row 3 */}
