@@ -265,8 +265,9 @@ const Application = () => {
                 <div />
               )}
 
-              {stage < 2 ? (
+              {stage === 1 && (
                 <button
+                  key="next-btn"
                   type="button"
                   onClick={onNext}
                   data-hover-arrow="true"
@@ -274,8 +275,11 @@ const Application = () => {
                 >
                   <span>Next Step</span>
                 </button>
-              ) : (
+              )}
+
+              {stage === 2 && (
                 <button
+                  key="submit-btn"
                   type="submit"
                   disabled={isSubmitting}
                   data-hover-arrow="true"
