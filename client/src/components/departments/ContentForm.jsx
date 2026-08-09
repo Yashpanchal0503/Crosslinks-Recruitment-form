@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const ContentForm = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -16,43 +20,67 @@ const ContentForm = () => {
           ✍️ Content Department Questions
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Share your writing experience, topics of interest, and sample links.
+          Share your writing, imagination, and links to previous work. (<u>Maximum word limit- 200</u> per answer)
         </p>
       </div>
 
       <div className="space-y-6">
+        {/* Q1: Controversial Opinion */}
         <div className="space-y-2">
-          <label className="input-label" htmlFor="topicsOfInterest">
-            // Topics of Interest
+          <label className="input-label" htmlFor="controversialOpinion">
+            // What is a controversial but harmless opinion you hold and how would you defend it in a heated argument? *
           </label>
-          <input
-            id="topicsOfInterest"
-            type="text"
-            placeholder="e.g., Festival Coverage, Tech Trends, Pop Culture, Copywriting"
-            {...register("topicsOfInterest")}
-            className="input-field"
+          <textarea
+            id="controversialOpinion"
+            rows={4}
+            placeholder="Share your opinion and defend it..."
+            {...register("controversialOpinion")}
+            className="input-field min-h-[110px] resize-y"
           />
-          {errors.topicsOfInterest && (
+          {shouldShowError("controversialOpinion") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
-              ⚠️ {errors.topicsOfInterest.message}
+              ⚠️ {errors.controversialOpinion.message}
             </motion.p>
           )}
         </div>
 
+        {/* Q2: Desk Item Backstory */}
         <div className="space-y-2">
-          <label className="input-label" htmlFor="writingSamples">
-            // Writing Samples / Article URL (Optional)
+          <label className="input-label" htmlFor="deskItemStory">
+            // Write a short interesting and dramatic backstory of the most boring item kept on your desk right now *
           </label>
+          <textarea
+            id="deskItemStory"
+            rows={4}
+            placeholder="Write a dramatic story about a pencil, eraser, bottle, or piece of paper..."
+            {...register("deskItemStory")}
+            className="input-field min-h-[110px] resize-y"
+          />
+          {shouldShowError("deskItemStory") && (
+            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
+              ⚠️ {errors.deskItemStory.message}
+            </motion.p>
+          )}
+        </div>
+
+        {/* Q3: Portfolio Link */}
+        <div className="space-y-2">
+          <label className="input-label" htmlFor="portfolioLink">
+            // Share the drive link to some of your <u>previous works</u> here *
+          </label>
+          <p className="text-[11px] text-muted-foreground mt-[-4px]">
+            (<u>ensure that the drive link has required permissions</u>)
+          </p>
           <input
-            id="writingSamples"
-            type="url"
-            placeholder="https://medium.com/your-article or Drive link..."
-            {...register("writingSamples")}
+            id="portfolioLink"
+            type="text"
+            placeholder="Share the Google Drive link to your articles or documents..."
+            {...register("portfolioLink")}
             className="input-field"
           />
-          {errors.writingSamples && (
+          {shouldShowError("portfolioLink") && (
             <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs font-semibold">
-              ⚠️ {errors.writingSamples.message}
+              ⚠️ {errors.portfolioLink.message}
             </motion.p>
           )}
         </div>

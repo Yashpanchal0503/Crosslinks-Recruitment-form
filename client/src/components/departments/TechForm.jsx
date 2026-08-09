@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 const TechForm = () => {
   const {
     register,
-    formState: { errors },
+    formState: { errors, touchedFields, isSubmitted },
   } = useFormContext();
+
+  const shouldShowError = (fieldName) => {
+    return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
+  };
 
   return (
     <motion.div
@@ -19,76 +23,79 @@ const TechForm = () => {
           💻 Tech Department Questions
         </h3>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Tell us about your technical skillset, stack experience, and projects.
+          Tell us about your technical skillset, motivation, and share your work.
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* Programming Languages */}
+        {/* Q1: Motivation */}
         <div className="space-y-2">
-          <label className="input-label" htmlFor="programmingLanguages">
-            // Preferred Programming Languages
-          </label>
-          <input
-            id="programmingLanguages"
-            type="text"
-            placeholder="e.g., JavaScript, Python, C++, TypeScript"
-            {...register("programmingLanguages")}
-            className="input-field"
-          />
-          {errors.programmingLanguages && (
-            <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-destructive text-xs font-semibold"
-            >
-              ⚠️ {errors.programmingLanguages.message}
-            </motion.p>
-          )}
-        </div>
-
-        {/* Frameworks */}
-        <div className="space-y-2">
-          <label className="input-label" htmlFor="frameworks">
-            // Frameworks / Libraries (Optional)
-          </label>
-          <input
-            id="frameworks"
-            type="text"
-            placeholder="e.g., React, Next.js, Node.js, Express, Django"
-            {...register("frameworks")}
-            className="input-field"
-          />
-          {errors.frameworks && (
-            <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-destructive text-xs font-semibold"
-            >
-              ⚠️ {errors.frameworks.message}
-            </motion.p>
-          )}
-        </div>
-
-        {/* Projects */}
-        <div className="space-y-2">
-          <label className="input-label" htmlFor="projects">
-            // Notable Projects & GitHub Links (Optional)
+          <label className="input-label" htmlFor="motivation">
+            // What motivates you to join the Tech Department at Crosslinks? *
           </label>
           <textarea
-            id="projects"
+            id="motivation"
             rows={4}
-            placeholder="Briefly describe your most important projects or share GitHub repository links..."
-            {...register("projects")}
+            placeholder="Tell us what drives you to join the tech team..."
+            {...register("motivation")}
             className="input-field min-h-[110px] resize-y"
           />
-          {errors.projects && (
+          {shouldShowError("motivation") && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-destructive text-xs font-semibold"
             >
-              ⚠️ {errors.projects.message}
+              ⚠️ {errors.motivation.message}
+            </motion.p>
+          )}
+        </div>
+
+        {/* Q2: Skills */}
+        <div className="space-y-2">
+          <label className="input-label" htmlFor="skills">
+            // Which frameworks and languages are you proficient in for Web Development? *
+          </label>
+          <textarea
+            id="skills"
+            rows={3}
+            placeholder="e.g. HTML, CSS, JavaScript, React, Next.js, Node.js, Python, Django etc."
+            {...register("skills")}
+            className="input-field min-h-[90px] resize-y"
+          />
+          {shouldShowError("skills") && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-destructive text-xs font-semibold"
+            >
+              ⚠️ {errors.skills.message}
+            </motion.p>
+          )}
+        </div>
+
+        {/* Q3: Portfolio/Git Link */}
+        <div className="space-y-2">
+          <label className="input-label" htmlFor="portfolioLink">
+            // Kindly share your portfolio or any <u>previous work</u> you have undertaken *
+          </label>
+          <p className="text-[11px] text-muted-foreground mt-[-4px]">
+            Share this via your Git repository and make sure it's public.
+          </p>
+          <input
+            id="portfolioLink"
+            type="text"
+            placeholder="e.g., https://github.com/username/project"
+            {...register("portfolioLink")}
+            className="input-field"
+          />
+          {shouldShowError("portfolioLink") && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-destructive text-xs font-semibold"
+            >
+              ⚠️ {errors.portfolioLink.message}
             </motion.p>
           )}
         </div>

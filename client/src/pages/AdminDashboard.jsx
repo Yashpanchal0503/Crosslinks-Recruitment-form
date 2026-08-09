@@ -31,6 +31,23 @@ const getStatusBadgeClass = (status) => {
   }
 };
 
+const questionLabels = {
+  motivation: "Motivation to Join Tech",
+  skills: "Proficient Languages & Frameworks",
+  portfolioLink: "Portfolio / Work Drive Link",
+  interestReason: "Motivation to Join Graphic Design",
+  softwaresUsed: "Softwares Used",
+  taskLink: "Task Submission Link",
+  brownieLink: "Introductory Post Link (Brownie Points)",
+  previousWorkLink: "Previous Work Link / N/A",
+  cameraModel: "Camera Model Used",
+  phoneModel: "Phone Model Used",
+  experienceLevel: "Current Level in Photography",
+  controversialOpinion: "Controversial Opinion",
+  deskItemStory: "Boring Item Backstory",
+  editingSoftware: "Video Editing Software Used",
+};
+
 const AdminDashboard = () => {
   const { admin, logout } = useAuth();
   const [allApplications, setAllApplications] = useState([]);
@@ -318,7 +335,7 @@ const AdminDashboard = () => {
                       Object.entries(selectedApp.departmentAnswers).map(([key, val]) => (
                         <div key={key} className="space-y-1">
                           <span className="text-xs font-mono text-muted-foreground uppercase font-semibold">
-                            {key.replace(/([A-Z])/g, " $1")}
+                            {questionLabels[key] || key.replace(/([A-Z])/g, " $1")}
                           </span>
                           {typeof val === "string" && val.startsWith("http") ? (
                             <p>

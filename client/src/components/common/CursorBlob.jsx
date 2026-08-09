@@ -61,7 +61,7 @@ export function CursorBlob() {
       <motion.div
         aria-hidden
         style={{ x: haloX, y: haloY, translateX: "-50%", translateY: "-50%" }}
-        className="pointer-events-none fixed left-0 top-0 z-[9990] h-64 w-64 rounded-full bg-accent/10 blur-3xl transition-opacity duration-500"
+        className="pointer-events-none fixed left-0 top-0 z-9990 h-64 w-64 rounded-full bg-accent/10 blur-3xl transition-opacity duration-500"
         animate={{ opacity: visible ? 1 : 0 }}
       />
 
@@ -69,7 +69,7 @@ export function CursorBlob() {
       <motion.div
         aria-hidden
         style={{ x: haloX, y: haloY, translateX: "-50%", translateY: "-50%" }}
-        className="pointer-events-none fixed left-0 top-0 z-[9998] flex items-center justify-center rounded-full border border-white/70 bg-white/10 backdrop-blur-[2px] shadow-[0_0_12px_rgba(255,255,255,0.25)] transition-colors duration-300"
+        className="pointer-events-none fixed left-0 top-0 z-9998 flex items-center justify-center rounded-full border border-white/70 bg-white/10 backdrop-blur-[2px] shadow-[0_0_12px_rgba(255,255,255,0.25)] transition-colors duration-300"
         animate={{
           width: isArrowHovered ? 36 : 32,
           height: isArrowHovered ? 36 : 32,
@@ -97,7 +97,7 @@ export function CursorBlob() {
       <motion.div
         aria-hidden
         style={{ x: dotX, y: dotY, translateX: "-50%", translateY: "-50%" }}
-        className="pointer-events-none fixed left-0 top-0 z-[9999] h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]"
+        className="pointer-events-none fixed left-0 top-0 z-9999 h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]"
         animate={{
           opacity: visible ? (isArrowHovered ? 0 : 1) : 0,
           scale: isArrowHovered ? 0 : 1,
