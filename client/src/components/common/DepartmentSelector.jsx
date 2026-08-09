@@ -5,10 +5,10 @@ import { Cpu, Palette, Camera, Edit3, Video, Check, ArrowUpRight } from "lucide-
 
 const departments = [
   {
-    key: "Photography",
-    name: "Photography & Film",
-    icon: <Camera className="w-6 h-6" />,
-    description: "Capture campus events, edit high-resolution photos, and direct video shoots.",
+    key: "Content",
+    name: "Content",
+    icon: <Edit3 className="w-6 h-6" />,
+    description: "Where creativity meets the power of words.We shape ideas into stories worth reading.",
   },
   {
     key: "Graphic Design",
@@ -23,17 +23,18 @@ const departments = [
     description: "Craft cinematic fest trailers, motion graphics, and engaging social reels.",
   },
   {
+    key: "Photography",
+    name: "Photography & Film",
+    icon: <Camera className="w-6 h-6" />,
+    description: "Capture campus events, edit high-resolution photos, and direct video shoots.",
+  },
+  {
     key: "Tech",
     name: "Tech",
     icon: <Cpu className="w-6 h-6" />,
     description: "Build web applications, internal recruitment portals, and high-performance APIs.",
   },
-  {
-    key: "Content",
-    name: "Content",
-    icon: <Edit3 className="w-6 h-6" />,
-    description: "Write captions, festival coverage, official press releases, and creative scripts.",
-  },
+
 ];
 
 const DepartmentSelector = () => {

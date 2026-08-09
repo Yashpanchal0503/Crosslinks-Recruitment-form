@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
 
 const PersonalDetails = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, watch, formState: { errors } } = useFormContext();
 
   const Field = ({ label, name, type = "text", placeholder, children }) => (
     <div className="space-y-2">
@@ -14,8 +14,8 @@ const PersonalDetails = () => {
         <input id={name} type={type} {...register(name)} className="input-field" placeholder={placeholder} />
       )}
       {errors[name] && (
-        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs mt-1.5 font-medium">
-          {errors[name].message}
+        <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-destructive text-xs mt-1.5 font-semibold">
+          ⚠️ {errors[name].message}
         </motion.p>
       )}
     </div>
@@ -35,40 +35,44 @@ const PersonalDetails = () => {
       <div className="space-y-6">
         {/* Row 1 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field label="Full Name" name="fullName" placeholder="John Doe" />
-          <Field label="Email" name="email" type="email" placeholder="john@nsut.ac.in" />
+          <Field label="Full Name" name="fullName" placeholder="Suresh" />
+          <Field label="Email" name="email" type="email" placeholder="suresh@gmail.com" />
         </div>
         {/* Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field label="Roll Number" name="rollNumber" placeholder="2024UGCS001" />
+          <Field label="Roll Number" name="rollNumber" placeholder="2026UIN3341" />
           <Field label="Contact Number" name="contactNumber" placeholder="9876543210" />
         </div>
         {/* Row 3 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <Field label="Campus" name="campus">
-            <div className="flex items-center gap-6 pt-2">
-              {["Main", "East", "West"].map(c => (
-                <label key={c} className="flex items-center gap-2.5 cursor-pointer group">
-                  <div className="relative">
-                    <input type="radio" value={c} {...register("campus")} className="peer sr-only" />
-                    <div className="w-4 h-4 rounded-full border-2 border-border peer-checked:border-accent peer-checked:bg-accent/20 transition-all" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
-                      <div className="w-2 h-2 rounded-full bg-accent" />
-                    </div>
-                  </div>
-                  <span className="text-xs sm:text-sm text-muted-foreground group-hover:text-foreground transition-colors font-medium">{c} Campus</span>
-                </label>
-              ))}
+            <div className="grid grid-cols-3 gap-2.5 pt-1.5">
+              {["Main", "East", "West"].map((c) => {
+                const isChecked = watch("campus") === c;
+                return (
+                  <label
+                    key={c}
+                    className={`flex items-center justify-center py-2.5 px-3 rounded-xl border text-[11px] font-mono tracking-wider font-bold cursor-pointer select-none transition-all duration-300 ${
+                      isChecked
+                        ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.02]"
+                        : "border-border/80 bg-slate-900/40 text-slate-400 hover:border-accent/60 hover:text-white"
+                    }`}
+                  >
+                    <input type="radio" value={c} {...register("campus")} className="sr-only" />
+                    {c.toUpperCase()}
+                  </label>
+                );
+              })}
             </div>
           </Field>
-          <Field label="Branch & Year" name="branch" placeholder="CSE / CSAI / ECE - 1st Year..." />
+          <Field label="Branch & Year" name="branch" placeholder="CSE / CSAI / ECE / ..." />
         </div>
         {/* Textareas */}
         <Field label="About You" name="about">
-          <textarea {...register("about")} className="input-field min-h-[110px] resize-y" placeholder="Tell us about your hobbies, interests, and what makes you unique..." />
+          <textarea {...register("about")} className="input-field min-h-[110px] resize-y" placeholder="Tell us something about yourself. (A brief introduction about your hobbies and interests)..." />
         </Field>
         <Field label="Why Crosslinks?" name="whyJoin">
-          <textarea {...register("whyJoin")} className="input-field min-h-[110px] resize-y" placeholder="What excites you about joining Crosslinks Society?" />
+          <textarea {...register("whyJoin")} className="input-field min-h-[110px] resize-y" placeholder="Why do you want to join Crosslinks?" />
         </Field>
       </div>
     </motion.div>

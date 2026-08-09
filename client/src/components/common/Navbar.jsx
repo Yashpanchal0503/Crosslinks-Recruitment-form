@@ -66,19 +66,6 @@ const Navbar = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
-          <button
-            aria-label="Toggle theme"
-            type="button"
-            onClick={toggleTheme}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-foreground/80 transition-colors cursor-pointer shrink-0"
-          >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
         </div>
 
         {/* Desktop View Layout (Logo Left, Address Bar Center, Theme Toggle Right) */}
@@ -109,21 +96,8 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Right: Theme Toggle */}
-          <div className="shrink-0 flex items-center">
-            <button
-              aria-label="Toggle theme"
-              type="button"
-              onClick={toggleTheme}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-foreground/80 transition-colors cursor-pointer shrink-0"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </button>
-          </div>
+          {/* Right: Empty space for balance */}
+          <div className="shrink-0 w-9 h-9" />
         </div>
 
       </div>
