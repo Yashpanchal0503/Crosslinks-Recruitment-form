@@ -8,7 +8,7 @@ const departments = [
     key: "Content",
     name: "Content",
     icon: <Edit3 className="w-6 h-6" />,
-    description: "Write captions, festival coverage, official press releases, and creative scripts.",
+    description: "Where creativity meets the power of words.We shape ideas into stories worth reading.",
   },
   {
     key: "Graphic Design",

@@ -134,9 +134,15 @@ const GDForm = () => {
 
           <div className="text-[11px] text-slate-400 bg-slate-900/30 p-3.5 rounded-xl border border-border/20 leading-relaxed space-y-2">
             <p>
-              <strong>Task Details:</strong> Do <u>any one</u> of the following tasks: <br />
+              <strong className="text-white">Task Details:</strong> Do <u>any one</u> of the following tasks: <br />
               1. <strong>NSUTTHON After-movie cover page</strong> (Dimension: 1080x1920, reference: <a href="https://www.instagram.com/p/DBwFd7YsAM_/" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">View Reel</a>) <br />
-              2. <strong>Redesign NSUT Yearbook 2026 Front & Back Page</strong> (Reference image shown below)
+              2. <strong>Redesign NSUT Yearbook 2026 Front & Back Page</strong> (Reference image shown below) <br /> <br />
+
+              <strong className="text-white">Extra Task (Brownie points):</strong> <br />
+              Suppose you get selected for crosslinks, Design an introductory post, introducing yourself on the crosslinks page.
+              <br /> <br />
+              <strong className="text-white">Previous Work:</strong> <br />
+              If applicable, add the Google Drive link; otherwise, type N/A.
             </p>
             <p>
               🔗 <strong>Logo file link:</strong> <a href="https://drive.google.com/file/d/139KNSDVUtT9jp96UVxjLfvk5udS5_oTZ/view?usp=sharing" target="_blank" rel="noreferrer" className="text-violet-400 hover:underline">Download Crosslinks Logo</a><br />
