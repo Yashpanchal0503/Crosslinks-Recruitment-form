@@ -8,36 +8,46 @@ export const personalDetailsSchema = z.object({
   contactNumber: z.string().min(10, "Contact number required"),
   campus: z.enum(["Main", "East", "West"], { required_error: "Select campus" }),
   branch: z.string().min(1, "Branch required"),
-  about: z.string().min(1, "Tell us about yourself"),
-  whyJoin: z.string().min(1, "Why join CrossLinks?") ,
+  about: z.string().min(1, "Introduction required"),
+  whyJoin: z.string().min(1, "Reason to join required"),
   department: z.string().min(1, "Select department"),
 });
 
-// Department specific schemas
+// Tech Department
 export const techSchema = z.object({
-  programmingLanguages: z.string().min(1, "Required"),
-  frameworks: z.string().optional(),
-  projects: z.string().optional(),
+  motivation: z.string().min(1, "Motivation required"),
+  skills: z.string().min(1, "Frameworks and languages required"),
+  portfolioLink: z.string().url("Must be a valid URL").or(z.literal("")),
 });
 
+// Graphic Design Department
 export const graphicDesignSchema = z.object({
-  tools: z.string().min(1, "Required"),
-  portfolioLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  interestReason: z.string().min(1, "Interest reason required"),
+  softwaresUsed: z.array(z.string()).min(1, "Select at least one software").or(z.string().min(1, "Softwares used required")),
+  taskLink: z.string().url("Must be a valid URL"),
+  brownieLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  previousWorkLink: z.string().min(1, "Previous work link or N/A is required"),
 });
 
+// Photography Department
 export const photographySchema = z.object({
-  cameraGear: z.string().min(1, "Required"),
-  portfolioLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  cameraModel: z.string().min(1, "Camera details required"),
+  phoneModel: z.string().min(1, "Phone details required"),
+  experienceLevel: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Select experience level" }),
+  portfolioLink: z.string().url("Must be a valid URL"),
 });
 
+// Content Department
 export const contentSchema = z.object({
-  writingSamples: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
-  topicsOfInterest: z.string().min(1, "Required"),
+  controversialOpinion: z.string().min(1, "Opinion is required"),
+  deskItemStory: z.string().min(1, "Story is required"),
+  portfolioLink: z.string().url("Must be a valid URL"),
 });
 
+// Video Editing Department
 export const videoEditingSchema = z.object({
-  editingSoftware: z.string().min(1, "Required"),
-  demoReelLink: z.string().url("Must be a valid URL").or(z.literal("")).optional(),
+  editingSoftware: z.string().min(1, "Editing software is required"),
+  portfolioLink: z.string().url("Must be a valid URL"),
 });
 
 export const getDepartmentSchema = (dept) => {
@@ -53,6 +63,6 @@ export const getDepartmentSchema = (dept) => {
     case "Video Editing":
       return videoEditingSchema;
     default:
-      return z.object({}); // empty schema for safety
+      return z.object({});
   }
 };
