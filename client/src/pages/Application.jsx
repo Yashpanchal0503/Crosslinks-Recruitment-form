@@ -247,33 +247,14 @@ const Application = () => {
               }
             }}
           >
-            <AnimatePresence mode="wait">
-              {stage === 1 && (
-                <motion.div
-                  key="stage1"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="space-y-6">
-                    <PersonalDetails />
-                    <DepartmentSelector />
-                  </div>
-                </motion.div>
-              )}
-              {stage === 2 && (
-                <motion.div
-                  key="stage2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {renderDeptForm()}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className={stage === 1 ? "block space-y-6" : "hidden"}>
+              <PersonalDetails />
+              <DepartmentSelector />
+            </div>
+
+            <div className={stage === 2 ? "block" : "hidden"}>
+              {renderDeptForm()}
+            </div>
 
             {/* Navigation & Submit Action Buttons styled after Alumni Meet CTA */}
             <div className="mt-10 flex items-center justify-between gap-4">
