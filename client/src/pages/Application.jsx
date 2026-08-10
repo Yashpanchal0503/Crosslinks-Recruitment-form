@@ -149,10 +149,10 @@ const Application = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="tracking-tight text-5xl sm:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
+            className="tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
           >
-            <span className="font-druk font-bold tracking-wider">join the</span>
-            <span className="font-display font-bold italic text-accent lowercase text-[1.1em] ml-4 sm:ml-5">team</span>
+            <span className="font-display font-bold tracking-tight uppercase">join the</span>
+            <span className="font-instrument italic font-normal text-accent lowercase text-[1.15em] ml-3 sm:ml-4">team</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

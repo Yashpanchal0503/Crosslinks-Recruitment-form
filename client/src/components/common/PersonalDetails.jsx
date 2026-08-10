@@ -40,11 +40,7 @@ const PersonalDetails = () => {
         </div>
         {/* Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-<<<<<<< HEAD
-          <Field label="Roll Number" name="rollNumber" placeholder="2026UIN3341" />
-=======
-          <Field label="Roll Number" name="rollNumber" placeholder="2025UCD2117" />
->>>>>>> b30aa32 (Save current recruitment portal UI design system and layout)
+          <Field label="Roll Number" name="rollNumber" placeholder="e.g. 2026UCD2117" />
           <Field label="Contact Number" name="contactNumber" placeholder="9876543210" />
         </div>
         {/* Row 3 */}
@@ -56,11 +52,10 @@ const PersonalDetails = () => {
                 return (
                   <label
                     key={c}
-                    className={`flex items-center justify-center py-2.5 px-3 rounded-xl border text-[11px] font-mono tracking-wider font-bold cursor-pointer select-none transition-all duration-300 ${
-                      isChecked
-                        ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.02]"
-                        : "border-border/80 bg-slate-900/40 text-slate-400 hover:border-accent/60 hover:text-white"
-                    }`}
+                    className={`flex items-center justify-center py-2.5 px-3 rounded-xl border text-[11px] font-mono tracking-wider font-bold cursor-pointer select-none transition-all duration-300 ${isChecked
+                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(45,160,73,0.15)] scale-[1.02]"
+                      : "border-border/80 bg-muted/50 text-muted-foreground hover:border-accent/60 hover:text-foreground"
+                      }`}
                   >
                     <input type="radio" value={c} {...register("campus")} className="sr-only" />
                     {c.toUpperCase()}
@@ -69,7 +64,7 @@ const PersonalDetails = () => {
               })}
             </div>
           </Field>
-          <Field label="Branch & Year" name="branch" placeholder="CSE / CSAI / ECE / ..." />
+          <Field label="Branch" name="branch" placeholder="CSE / CSAI / ECE / ..." />
         </div>
         {/* Textareas */}
         <Field label="About You" name="about">

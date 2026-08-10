@@ -1,9 +1,12 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { motion } from "framer-motion";
+import { Check } from "lucide-react";
 
 const PhotographyForm = () => {
   const { register, watch, formState: { errors, touchedFields, isSubmitted } } = useFormContext();
+  const selectedExp = watch("experienceLevel");
+  const hasSelectedExp = !!selectedExp;
 
   const shouldShowError = (fieldName) => {
     return errors[fieldName] && (touchedFields[fieldName] || isSubmitted);
@@ -70,18 +73,20 @@ const PhotographyForm = () => {
           </label>
           <div className="flex flex-col gap-3">
             {[
-              { value: "Beginner", title: "Beginner", desc: "New but interested" },
-              { value: "Intermediate", title: "Intermediate", desc: "Practiced and clicked actively" },
-              { value: "Advanced", title: "Advanced", desc: "Understands manual settings, composition and editing" }
+              { value: "Beginner", title: "Beginner", desc: "New but interested in photography" },
+              { value: "Intermediate", title: "Intermediate", desc: "Practiced and clicked photos actively" },
+              { value: "Advanced", title: "Advanced", desc: "Understands manual camera settings, composition and editing" }
             ].map((option) => {
-              const isChecked = watch("experienceLevel") === option.value;
+              const isChecked = selectedExp === option.value;
               return (
                 <label
                   key={option.value}
-                  className={`flex flex-col p-4 rounded-xl border cursor-pointer select-none transition-all duration-300 ${
+                  className={`flex items-start justify-between p-4 rounded-xl border cursor-pointer select-none transition-all duration-300 ${
                     isChecked
-                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.01]"
-                      : "border-border/80 bg-slate-900/40 text-slate-300 hover:border-accent/60 hover:text-white"
+                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.01] opacity-100"
+                      : hasSelectedExp
+                      ? "border-border/60 bg-card/60 opacity-45 hover:opacity-90 hover:scale-[1.01]"
+                      : "border-border/80 bg-muted/50 text-muted-foreground hover:border-accent/60 hover:text-foreground"
                   }`}
                 >
                   <input
@@ -90,12 +95,24 @@ const PhotographyForm = () => {
                     {...register("experienceLevel")}
                     className="sr-only"
                   />
-                  <span className={`text-sm font-bold font-sans ${isChecked ? "text-accent" : "text-foreground"}`}>
-                    {option.title}
-                  </span>
-                  <span className="text-xs text-muted-foreground mt-1 leading-normal">
-                    {option.desc}
-                  </span>
+                  <div>
+                    <span className={`text-sm font-bold font-sans block ${isChecked ? "text-accent" : "text-foreground"}`}>
+                      {option.title}
+                    </span>
+                    <span className="text-xs text-muted-foreground mt-0.5 leading-normal block">
+                      {option.desc}
+                    </span>
+                  </div>
+                  {/* Radio Circle Indicator */}
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ml-2 transition-all duration-300 ${
+                      isChecked
+                        ? "border-accent bg-accent text-white shadow-sm"
+                        : "border-border/80 bg-card"
+                    }`}
+                  >
+                    {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
                 </label>
               );
             })}

@@ -16,7 +16,7 @@ const Confetti = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const colors = ["#8B5CF6", "#A78BFA", "#C084FC", "#3B82F6", "#EC4899"];
+    const colors = ["#2DA049", "#34D399", "#10B981", "#059669", "#A7F3D0"];
     const particles = [];
 
     for (let i = 0; i < 100; i++) {
