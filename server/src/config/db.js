@@ -35,6 +35,18 @@ const connectDB = async () => {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/crosslinks_recruitment';
     const conn = await mongoose.connect(mongoUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Automatically drop the old single-email unique index if it exists to allow multi-department applications
+    try {
+      const collections = mongoose.connection.collections;
+      if (collections['applications']) {
+        await collections['applications'].dropIndex('personalDetails.email_1');
+        console.log('Old single-email unique index dropped (or not found). Multi-department submissions enabled.');
+      }
+    } catch (indexError) {
+      // Silently ignore if index does not exist
+    }
+
     await autoSeedAdmin();
   } catch (error) {
     console.error(`Error: ${error.message}`);
