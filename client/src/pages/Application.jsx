@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,23 +19,27 @@ import CursorBlob from "../components/common/CursorBlob";
 const Application = () => {
   const [stage, setStage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const methods = useForm({
-    mode: "onSubmit",
-    resolver: async (data, context, options) => {
+  const resolver = useMemo(() => {
+    return async (data, context, options) => {
       let schema;
-      if (stage === 1 || !isSubmitTriggered) {
+      if (stage === 1) {
         schema = personalDetailsSchema;
       } else {
         const deptSchema = getDepartmentSchema(data.department);
         schema = personalDetailsSchema.merge(deptSchema);
       }
       return zodResolver(schema)(data, context, options);
-    },
+    };
+  }, [stage]);
+
+  const methods = useForm({
+    mode: "onSubmit",
+    resolver,
     defaultValues: { campus: "Main", department: "" },
+    shouldUnregister: false,
   });
 
   const { handleSubmit, trigger, watch, clearErrors } = methods;
@@ -79,26 +83,20 @@ const Application = () => {
   };
 
   const onPrev = () => {
-    setIsSubmitTriggered(false);
     setStage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const onSubmit = async (data) => {
-    if (stage !== 2) return;
-    
-    // Enable Stage 2 validation
-    setIsSubmitTriggered(true);
-    
-    // Manually trigger full form validation
-    const isValid = await trigger();
-    if (!isValid) {
-      setTimeout(() => {
-        scrollToFirstError(methods.formState.errors);
-      }, 50);
-      return;
-    }
+  const onInvalid = (errors) => {
+    setTimeout(() => {
+      scrollToFirstError(errors);
+    }, 50);
+  };
 
+  const onSubmit = async () => {
+    if (stage !== 2) return;
+    // Use getValues() to capture ALL registered fields, not the resolver-filtered data
+    const data = methods.getValues();
     setIsSubmitting(true);
     setError("");
     try {
@@ -237,40 +235,21 @@ const Application = () => {
 
         <FormProvider {...methods}>
           <form
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalid)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
                 e.preventDefault();
               }
             }}
           >
-            <AnimatePresence mode="wait">
-              {stage === 1 && (
-                <motion.div
-                  key="stage1"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="space-y-6">
-                    <PersonalDetails />
-                    <DepartmentSelector />
-                  </div>
-                </motion.div>
-              )}
-              {stage === 2 && (
-                <motion.div
-                  key="stage2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {renderDeptForm()}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className={stage === 1 ? "block space-y-6" : "hidden"}>
+              <PersonalDetails />
+              <DepartmentSelector />
+            </div>
+
+            <div className={stage === 2 ? "block" : "hidden"}>
+              {renderDeptForm()}
+            </div>
 
             {/* Navigation & Submit Action Buttons styled after Alumni Meet CTA */}
             <div className="mt-10 flex items-center justify-between gap-4">

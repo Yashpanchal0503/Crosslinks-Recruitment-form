@@ -336,19 +336,21 @@ const AdminDashboard = () => {
                           <span className="text-xs font-mono text-muted-foreground uppercase font-semibold">
                             {questionLabels[key] || key.replace(/([A-Z])/g, " $1")}
                           </span>
-                          {typeof val === "string" && val.startsWith("http") ? (
+                          {Array.isArray(val) ? (
+                            <p className="text-foreground font-semibold">{val.join(", ")}</p>
+                          ) : typeof val === "string" && val.startsWith("http") ? (
                             <p>
                               <a
                                 href={val}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-accent hover:underline inline-flex items-center gap-1 font-semibold"
+                                className="text-accent hover:underline inline-flex items-center gap-1 font-semibold break-all"
                               >
                                 {val}
                               </a>
                             </p>
                           ) : (
-                            <p className="text-foreground">{val || "N/A"}</p>
+                            <p className="text-foreground leading-relaxed">{val || "N/A"}</p>
                           )}
                         </div>
                       ))

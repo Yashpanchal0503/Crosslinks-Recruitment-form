@@ -18,7 +18,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const isLoginRequest = error.config && error.config.url && error.config.url.includes('/auth/login');
+    if (error.response && error.response.status === 401 && !isLoginRequest) {
       localStorage.removeItem('token');
       localStorage.removeItem('admin');
       window.location.href = '/admin/login';
@@ -29,15 +30,25 @@ api.interceptors.response.use(
 
 /**
  * Transform flat form data into the nested structure the backend expects.
+ * Only includes department-specific fields for the selected department.
  */
 function transformApplicationData(data) {
-  const personalFields = ['fullName', 'email', 'rollNumber', 'contactNumber', 'campus', 'branch', 'about', 'whyJoin', 'department'];
+  const deptFields = {
+    'Tech': ['motivation', 'skills', 'portfolioLink'],
+    'Graphic Design': ['interestReason', 'softwaresUsed', 'otherSoftware', 'driveLink'],
+    'Photography': ['cameraModel', 'phoneModel', 'experienceLevel', 'portfolioLink'],
+    'Content': ['controversialOpinion', 'deskItemStory', 'portfolioLink'],
+    'Video Editing': ['editingSoftware', 'portfolioLink'],
+  };
+
+  const allowedFields = deptFields[data.department] || [];
   const departmentAnswers = {};
-  for (const [key, value] of Object.entries(data)) {
-    if (!personalFields.includes(key) && value !== undefined && value !== '') {
-      departmentAnswers[key] = value;
+  for (const key of allowedFields) {
+    if (data[key] !== undefined && data[key] !== '') {
+      departmentAnswers[key] = data[key];
     }
   }
+
   return {
     personalDetails: {
       name: data.fullName,

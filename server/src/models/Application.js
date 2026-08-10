@@ -17,7 +17,7 @@ const applicationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-applicationSchema.index({ 'personalDetails.email': 1 }, { unique: true });
+applicationSchema.index({ 'personalDetails.email': 1, 'department': 1 }, { unique: true });
 
 const Application = mongoose.model('Application', applicationSchema);
 

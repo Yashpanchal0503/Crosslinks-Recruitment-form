@@ -31,14 +31,6 @@ export const graphicDesignSchema = z.object({
   softwaresUsed: z.array(z.string()).min(1, "Select at least one software"),
   otherSoftware: z.string().optional(),
   driveLink: z.string().regex(urlRegex, "Must be a valid drive link (starting with http:// or https://)"),
-}).refine((data) => {
-  if (data.softwaresUsed.includes("Other") && (!data.otherSoftware || data.otherSoftware.trim() === "")) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Please specify other softwares",
-  path: ["otherSoftware"],
 });
 
 // Photography Department

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Admin from '../models/Admin.js';
+import Application from '../models/Application.js';
 
 const autoSeedAdmin = async () => {
   try {
@@ -35,6 +36,15 @@ const connectDB = async () => {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/crosslinks_recruitment';
     const conn = await mongoose.connect(mongoUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    
+    // Automatically drop all indexes to force Mongoose to rebuild the new compound key index
+    try {
+      await Application.collection.dropIndexes();
+      console.log('Old indexes dropped. Rebuilding compound key indexes for multi-department applications...');
+    } catch (indexError) {
+      console.log('Index dropping status (ignored):', indexError.message);
+    }
+
     await autoSeedAdmin();
   } catch (error) {
     console.error(`Error: ${error.message}`);
