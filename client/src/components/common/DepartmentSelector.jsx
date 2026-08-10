@@ -24,7 +24,7 @@ const departments = [
   },
   {
     key: "Photography",
-    name: "Photography & Film",
+    name: "Photography",
     icon: <Camera className="w-6 h-6" />,
     description: "Capture campus events, edit high-resolution photos, and direct video shoots.",
   },

@@ -93,8 +93,10 @@ const Application = () => {
     }, 50);
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     if (stage !== 2) return;
+    // Use getValues() to capture ALL registered fields, not the resolver-filtered data
+    const data = methods.getValues();
     setIsSubmitting(true);
     setError("");
     try {
