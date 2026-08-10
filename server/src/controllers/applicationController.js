@@ -2,9 +2,12 @@ import Application from '../models/Application.js';
 
 export const submitApplication = async (req, res) => {
   try {
-    const existing = await Application.findOne({ 'personalDetails.email': req.body.personalDetails.email });
+    const existing = await Application.findOne({ 
+      'personalDetails.email': req.body.personalDetails.email,
+      'department': req.body.department
+    });
     if (existing) {
-      return res.status(400).json({ message: 'An application with this email already exists' });
+      return res.status(400).json({ message: 'You have already submitted an application for this department.' });
     }
     const application = await Application.create(req.body);
     res.status(201).json(application);

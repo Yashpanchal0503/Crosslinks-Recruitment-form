@@ -36,6 +36,7 @@ const Application = () => {
       return zodResolver(schema)(data, context, options);
     },
     defaultValues: { campus: "Main", department: "" },
+    shouldUnregister: false,
   });
 
   const { handleSubmit, trigger, watch, clearErrors } = methods;
