@@ -58,26 +58,61 @@ const AdminDashboard = () => {
   const [selectedApp, setSelectedApp] = useState(null);
   const [selectedDept, setSelectedDept] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchStats = async () => {
     try {
-      const [appsRes, statsRes] = await Promise.all([
-        getApplications({ limit: 5000 }),
-        getStats(),
-      ]);
-      setAllApplications(appsRes.data.applications || appsRes.data);
+      const statsRes = await getStats();
       setStats(statsRes.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load applications data.");
+      console.error("Failed to load stats", err);
+    }
+  };
+
+  const fetchApplications = async (currentPage, dept, search) => {
+    setLoading(true);
+    try {
+      const params = {
+        page: currentPage,
+        limit: 20,
+      };
+      if (dept !== "All") params.department = dept;
+      if (search.trim() !== "") params.search = search.trim();
+
+      const res = await getApplications(params);
+      setAllApplications(res.data.applications || []);
+      setTotalPages(res.data.totalPages || 1);
+      setTotalCount(res.data.totalApplications || res.data.totalCount || 0);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load applications.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchStats();
   }, []);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchApplications(page, selectedDept, searchQuery);
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [page, selectedDept, searchQuery]);
+
+  const handleDeptChange = (newDept) => {
+    setSelectedDept(newDept);
+    setPage(1);
+  };
+
+  const handleSearchChange = (val) => {
+    setSearchQuery(val);
+    setPage(1);
+  };
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -88,24 +123,11 @@ const AdminDashboard = () => {
       if (selectedApp && selectedApp._id === id) {
         setSelectedApp((prev) => ({ ...prev, status: newStatus }));
       }
-      const statsRes = await getStats();
-      setStats(statsRes.data);
+      fetchStats();
     } catch (err) {
       alert(err.response?.data?.message || "Status update failed");
     }
   };
-
-  const filteredApplications = allApplications.filter((app) => {
-    const matchesDept = selectedDept === "All" || app.department === selectedDept;
-    const query = searchQuery.trim().toLowerCase();
-    const matchesSearch =
-      query === "" ||
-      (app.personalDetails?.name || "").toLowerCase().includes(query) ||
-      (app.personalDetails?.email || "").toLowerCase().includes(query) ||
-      (app.personalDetails?.rollNumber || "").toLowerCase().includes(query);
-
-    return matchesDept && matchesSearch;
-  });
 
   if (loading && allApplications.length === 0) {
     return (
@@ -178,7 +200,7 @@ const AdminDashboard = () => {
           <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-foreground font-sans">Applicant Records</h2>
-              <p className="text-xs text-muted-foreground font-mono">// TOTAL {filteredApplications.length} CANDIDATES FOUND</p>
+              <p className="text-xs text-muted-foreground font-mono">// TOTAL {totalCount} CANDIDATES FOUND</p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -188,7 +210,7 @@ const AdminDashboard = () => {
                   type="text"
                   placeholder="Search name, email, roll..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="w-full sm:w-64 input-field text-xs py-2 pl-9 pr-3 rounded-full"
                 />
                 <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
@@ -198,7 +220,7 @@ const AdminDashboard = () => {
               <div className="flex items-center gap-2">
                 <select
                   value={selectedDept}
-                  onChange={(e) => setSelectedDept(e.target.value)}
+                  onChange={(e) => handleDeptChange(e.target.value)}
                   className="input-field text-xs py-2 px-3 rounded-full cursor-pointer"
                 >
                   <option value="All">All Domains</option>
@@ -224,7 +246,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {filteredApplications.map((app) => (
+                {allApplications.map((app) => (
                   <tr key={app._id} className="hover:bg-muted/30 transition-colors">
                     <td className="p-4 text-foreground font-semibold text-sm">{app.personalDetails?.name}</td>
                     <td className="p-4 text-muted-foreground text-xs">{app.personalDetails?.email}</td>
@@ -255,7 +277,7 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {filteredApplications.length === 0 && (
+                {allApplications.length === 0 && (
                   <tr>
                     <td colSpan={5} className="p-12 text-center text-muted-foreground text-sm font-mono">
                       No matching candidate applications found.
@@ -265,6 +287,47 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-between gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
+              <button
+                type="button"
+                disabled={page === 1 || loading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="h-8 px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed"
+              >
+                ← Previous
+              </button>
+              <div className="hidden sm:flex items-center gap-1.5">
+                {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                  <button
+                    key={pNum}
+                    type="button"
+                    onClick={() => setPage(pNum)}
+                    className={`w-8 h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                      page === pNum
+                        ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20"
+                        : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {pNum}
+                  </button>
+                ))}
+              </div>
+              <span className="sm:hidden">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={page === totalPages || loading}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="h-8 px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
