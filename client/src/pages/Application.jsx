@@ -302,7 +302,7 @@ const Application = () => {
                       { name: "Reyansh", dept: "Graphic Design", phone: "9667962242" },
                       { name: "Kabir Pahwa", dept: "Content", phone: "8287055126" },
                       { name: "Aryan", dept: "Video Editing", phone: "9811567566" },
-                      { name: "Parv", dept: "Photography", phone: "9873231557" },
+                      { name: "Parv", dept: "Photography", phone: "9873231157" },
                       { name: "Ashish", dept: "Tech", phone: "6206814632" },
                     ].map((poc) => (
                       <a
