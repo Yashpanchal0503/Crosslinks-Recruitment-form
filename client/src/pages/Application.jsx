@@ -250,6 +250,90 @@ const Application = () => {
             }}
           >
             <div className={stage === 1 ? "block space-y-6" : "hidden"}>
+
+              {/* Deadline & POC Info Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="rounded-2xl glass-card p-5 sm:p-7 space-y-5"
+              >
+                {/* Deadline Row */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">// APPLICATION DEADLINE</p>
+                      <p className="text-lg sm:text-xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">23 August, 2026</p>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-mono font-bold text-amber-500 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
+                    ⏰ SUBMIT BEFORE DEADLINE
+                  </span>
+                </div>
+
+                <div className="h-px bg-border/60" />
+
+                {/* About Section */}
+                <div className="space-y-2">
+                  <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">// ABOUT CROSSLINKS</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    If you still have questions about who we are, what events we organize, or who's on the team? Check out our official website:{" "}
+                    <a
+                      href="https://crosslinksnsut.in"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-accent font-semibold hover:underline inline-flex items-center gap-1"
+                    >
+                      crosslinksnsut.in
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    </a>
+                  </p>
+                </div>
+
+                <div className="h-px bg-border/60" />
+
+                <div className="space-y-3">
+                  <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">// POINT OF CONTACT</p>
+                  <p className="text-xs text-muted-foreground">In case of any queries, please contact:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {[
+                      { name: "Reyansh", dept: "Graphic Design", phone: "9667962242" },
+                      { name: "Kabir Pahwa", dept: "Content", phone: "8287055126" },
+                      { name: "Aryan", dept: "Video Editing", phone: "9811567566" },
+                      { name: "Parv", dept: "Photography", phone: "9873231557" },
+                      { name: "Ashish", dept: "Tech", phone: "6206814632" },
+                    ].map((poc) => (
+                      <a
+                        key={poc.name}
+                        href={`https://wa.me/91${poc.phone}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/60 hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 group cursor-pointer"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-muted border border-border/60 flex items-center justify-center text-muted-foreground shrink-0 text-xs font-bold font-mono group-hover:bg-accent/10 group-hover:border-accent/20 group-hover:text-accent transition-colors duration-300">
+                            {poc.name.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-foreground truncate group-hover:text-accent transition-colors duration-300">
+                              {poc.name}
+                              <span className="text-[10px] font-mono text-muted-foreground ml-1.5 group-hover:text-accent/80 transition-colors duration-300">({poc.dept})</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground font-mono">{poc.phone}</p>
+                          </div>
+                        </div>
+                        <span className="text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 shrink-0 ml-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+
               <PersonalDetails />
               <DepartmentSelector />
             </div>

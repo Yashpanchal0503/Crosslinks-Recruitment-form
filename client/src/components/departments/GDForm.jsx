@@ -60,7 +60,7 @@ const GDForm = () => {
                 <label
                   key={sw}
                   className={`flex items-center justify-between py-3 px-4 rounded-xl border text-xs sm:text-sm font-bold cursor-pointer select-none transition-all duration-300 ${isChecked
-                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.02]"
+                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(45,160,73,0.15)] scale-[1.02]"
                       : "border-border/80 bg-muted/50 text-muted-foreground hover:border-accent/60 hover:text-foreground"
                     }`}
                 >
@@ -156,10 +156,10 @@ const GDForm = () => {
 
           {/* Design Task Options (Grid Cards) */}
           <div className="space-y-2">
-            <p className="text-xs font-mono font-semibold text-muted-foreground uppercase">// Choose Any 1 Design Task Below:</p>
+            <p className="text-xs font-mono font-semibold text-muted-foreground uppercase">// Do Any 1 Design Task Below:</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {/* Task Option 1 */}
-              <div className="p-4 rounded-xl bg-card border border-border/80 flex flex-col justify-between space-y-3 hover:border-accent/60 transition-colors">
+              <div className="p-4 rounded-xl bg-card border border-border/80 flex flex-col justify-between space-y-3">
                 <div>
                   <span className="text-[11px] font-mono font-bold text-accent px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20">
                     TASK OPTION A
@@ -178,7 +178,7 @@ const GDForm = () => {
               </div>
 
               {/* Task Option 2 */}
-              <div className="p-4 rounded-xl bg-card border border-border/80 flex flex-col justify-between space-y-3 hover:border-accent/60 transition-colors">
+              <div className="p-4 rounded-xl bg-card border border-border/80 flex flex-col justify-between space-y-3">
                 <div>
                   <span className="text-[11px] font-mono font-bold text-accent px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20">
                     TASK OPTION B

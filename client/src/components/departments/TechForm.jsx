@@ -74,7 +74,7 @@ const TechForm = () => {
                   key={domain.id}
                   className={`flex items-start justify-between p-4 rounded-xl border cursor-pointer select-none transition-all duration-300 ${
                     isChecked
-                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(139,92,246,0.15)]"
+                      ? "border-accent bg-accent/15 text-accent shadow-[0_0_12px_rgba(45,160,73,0.15)]"
                       : "border-border/80 bg-muted/50 text-muted-foreground hover:border-accent/60 hover:text-foreground"
                   }`}
                 >

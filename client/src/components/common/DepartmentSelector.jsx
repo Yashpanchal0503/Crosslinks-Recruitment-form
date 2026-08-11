@@ -5,6 +5,12 @@ import { Cpu, Palette, Camera, Edit3, Video, Check, Info } from "lucide-react";
 
 const departments = [
   {
+    key: "Content",
+    name: "Content",
+    icon: <Edit3 className="w-6 h-6" />,
+    description: "Creating engaging content that connects, informs, and inspires.",
+  },
+  {
     key: "Photography",
     name: "Photography",
     icon: <Camera className="w-6 h-6" />,
@@ -28,12 +34,7 @@ const departments = [
     icon: <Cpu className="w-6 h-6" />,
     description: "Build web applications, internal recruitment portals, and high-performance APIs.",
   },
-  {
-    key: "Content",
-    name: "Content",
-    icon: <Edit3 className="w-6 h-6" />,
-    description: "Write captions, festival coverage, official press releases, and creative scripts.",
-  },
+
 ];
 
 const DepartmentSelector = () => {

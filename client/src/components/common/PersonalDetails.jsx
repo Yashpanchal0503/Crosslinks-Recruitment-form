@@ -35,13 +35,13 @@ const PersonalDetails = () => {
       <div className="space-y-6">
         {/* Row 1 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <Field label="Full Name" name="fullName" placeholder="Suresh" />
-          <Field label="Email" name="email" type="email" placeholder="suresh@gmail.com" />
+          <Field label="Full Name" name="fullName" placeholder="Ashish" />
+          <Field label="Email" name="email" type="email" placeholder="Ashish@gmail.com" />
         </div>
         {/* Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <Field label="Roll Number" name="rollNumber" placeholder="e.g. 2026UCD2117" />
-          <Field label="Contact Number" name="contactNumber" placeholder="9876543210" />
+          <Field label="Contact Number" name="contactNumber" placeholder="9996896805" />
         </div>
         {/* Row 3 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
