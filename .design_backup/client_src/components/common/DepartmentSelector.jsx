@@ -1,12 +1,12 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { motion } from "framer-motion";
-import { Cpu, Palette, Camera, Edit3, Video, Check, Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Cpu, Palette, Camera, Edit3, Video, Check, ArrowUpRight } from "lucide-react";
 
 const departments = [
   {
     key: "Photography",
-    name: "Photography",
+    name: "Photography & Film",
     icon: <Camera className="w-6 h-6" />,
     description: "Capture campus events, edit high-resolution photos, and direct video shoots.",
   },
@@ -39,7 +39,6 @@ const departments = [
 const DepartmentSelector = () => {
   const { register, watch, setValue, formState: { errors } } = useFormContext();
   const selected = watch("department");
-  const hasSelected = !!selected;
 
   const handleSelect = (deptKey) => {
     setValue("department", deptKey, { shouldValidate: true });
@@ -51,28 +50,18 @@ const DepartmentSelector = () => {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl glass-card p-6 sm:p-8 relative overflow-hidden"
     >
-      <div className="mb-6 border-b border-border/60 pb-4">
-        <div className="flex items-end justify-between gap-4 mb-2">
-          <div>
-            <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-sans">
-              Select Your Department
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              Choose the primary domain you wish to apply for in Crosslinks.
-            </p>
-          </div>
-          <span className="hidden sm:inline-block text-xs font-mono text-accent font-semibold px-3 py-1 rounded-full bg-accent/10 border border-accent/20 shrink-0">
-            // 5 DOMAINS AVAILABLE
-          </span>
-        </div>
-
-        {/* Multiple Departments Application Notice Box */}
-        <div className="mt-3 p-3 rounded-xl bg-accent/10 border border-accent/20 text-foreground text-xs leading-relaxed flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-          <p>
-            <strong className="text-accent">Separate Application Notice:</strong> You can only select <u className="font-semibold">one department per application</u>. If you wish to apply for multiple departments, please submit a separate application form for each department.
+      <div className="mb-6 border-b border-border/60 pb-4 flex items-end justify-between gap-4">
+        <div>
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight font-sans">
+            Select Your Department
+          </h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Choose the primary domain you wish to apply for in Crosslinks.
           </p>
         </div>
+        <span className="hidden sm:inline-block text-xs font-mono text-accent font-semibold px-3 py-1 rounded-full bg-accent/10 border border-accent/20">
+          // 5 DOMAINS AVAILABLE
+        </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -85,12 +74,10 @@ const DepartmentSelector = () => {
               onClick={() => handleSelect(dept.key)}
               className={`group relative flex flex-col justify-between p-6 rounded-2xl text-left transition-all duration-300 cursor-pointer overflow-hidden ${
                 isSelected
-                  ? "border-2 border-accent bg-gradient-to-br from-accent/20 via-accent/5 to-card shadow-xl shadow-accent/20 ring-1 ring-accent/30 scale-[1.02] opacity-100 z-10"
-                  : hasSelected
-                  ? "border border-border/60 bg-card/60 opacity-45 hover:opacity-90 hover:scale-[1.01] hover:border-accent/60"
+                  ? "border-2 border-accent bg-gradient-to-br from-accent/15 via-accent/5 to-card shadow-xl shadow-accent/20 ring-1 ring-accent/30 scale-[1.02]"
                   : "border border-border/80 bg-card hover:bg-muted/50 hover:border-accent/60 shadow-md hover:shadow-xl hover:shadow-accent/10"
               }`}
-              whileHover={{ y: -3 }}
+              whileHover={{ y: -4 }}
               whileTap={{ scale: 0.98 }}
             >
               {/* Subtle Card Glow Effect */}
@@ -99,7 +86,7 @@ const DepartmentSelector = () => {
               )}
 
               <div>
-                {/* Header Row: Icon & Single Select Radio Indicator */}
+                {/* Header Row: Icon & Status Badge */}
                 <div className="flex items-center justify-between mb-4">
                   <div
                     className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
@@ -111,20 +98,26 @@ const DepartmentSelector = () => {
                     {dept.icon}
                   </div>
 
-                  {/* Single Select Radio Circle Badge */}
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                      isSelected
-                        ? "border-accent bg-accent text-white shadow-md shadow-accent/30 scale-110"
-                        : "border-border/80 bg-card group-hover:border-accent/70"
-                    }`}
-                  >
+                  <AnimatePresence mode="wait">
                     {isSelected ? (
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <motion.div
+                        key="selected-badge"
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        className="h-7 px-3 rounded-full bg-accent text-white text-xs font-mono font-bold flex items-center gap-1.5 shadow-md shadow-accent/30"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Selected
+                      </motion.div>
                     ) : (
-                      <div className="w-2 h-2 rounded-full bg-transparent group-hover:bg-accent/40 transition-colors" />
+                      <motion.div
+                        key="hover-arrow"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-accent"
+                      >
+                        <ArrowUpRight className="w-5 h-5" />
+                      </motion.div>
                     )}
-                  </div>
+                  </AnimatePresence>
                 </div>
 
                 {/* Title & Description */}
@@ -139,7 +132,7 @@ const DepartmentSelector = () => {
               {/* Card Footer Prompt */}
               <div className="mt-5 pt-3 border-t border-border/40 flex items-center justify-between text-[11px] font-mono">
                 <span className={isSelected ? "text-accent font-semibold" : "text-muted-foreground group-hover:text-foreground transition-colors"}>
-                  {isSelected ? "DEPARTMENT SELECTED" : "SELECT DOMAIN"}
+                  {isSelected ? "DOMAIN CONFIRMED" : "CLICK TO SELECT"}
                 </span>
                 <span className={`transition-transform duration-300 ${isSelected ? "translate-x-0 text-accent" : "group-hover:translate-x-1 text-muted-foreground"}`}>
                   {isSelected ? "✓" : "→"}

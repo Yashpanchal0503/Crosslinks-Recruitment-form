@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,45 +19,27 @@ import CursorBlob from "../components/common/CursorBlob";
 const Application = () => {
   const [stage, setStage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitTriggered, setIsSubmitTriggered] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const resolver = useMemo(() => {
-    return async (data, context, options) => {
+  const methods = useForm({
+    mode: "onSubmit",
+    resolver: async (data, context, options) => {
       let schema;
-      if (stage === 1) {
+      if (stage === 1 || !isSubmitTriggered) {
         schema = personalDetailsSchema;
       } else {
         const deptSchema = getDepartmentSchema(data.department);
         schema = personalDetailsSchema.merge(deptSchema);
       }
       return zodResolver(schema)(data, context, options);
-    };
-  }, [stage]);
-
-  const methods = useForm({
-    mode: "onSubmit",
-    resolver,
+    },
     defaultValues: { campus: "Main", department: "" },
-    shouldUnregister: false,
   });
 
   const { handleSubmit, trigger, watch, clearErrors } = methods;
   const selectedDept = watch("department");
-
-  const scrollToFirstError = (currentErrors) => {
-    const errorKeys = Object.keys(currentErrors);
-    if (errorKeys.length > 0) {
-      const firstErrorKey = errorKeys[0];
-      const element = document.getElementById(firstErrorKey) || document.getElementsByName(firstErrorKey)[0];
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => {
-          element.focus({ preventScroll: true });
-        }, 100);
-      }
-    }
-  };
 
   const onNext = async () => {
     const isValid = await trigger([
@@ -75,28 +57,25 @@ const Application = () => {
       clearErrors();
       setStage(2);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setTimeout(() => {
-        scrollToFirstError(methods.formState.errors);
-      }, 50);
     }
   };
 
   const onPrev = () => {
+    setIsSubmitTriggered(false);
     setStage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const onInvalid = (errors) => {
-    setTimeout(() => {
-      scrollToFirstError(errors);
-    }, 50);
-  };
-
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     if (stage !== 2) return;
-    // Use getValues() to capture ALL registered fields, not the resolver-filtered data
-    const data = methods.getValues();
+    
+    // Enable Stage 2 validation
+    setIsSubmitTriggered(true);
+    
+    // Manually trigger full form validation
+    const isValid = await trigger();
+    if (!isValid) return;
+
     setIsSubmitting(true);
     setError("");
     try {
@@ -149,10 +128,10 @@ const Application = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
+            className="tracking-tight text-5xl sm:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
           >
-            <span className="font-display font-bold tracking-tight uppercase">join the</span>
-            <span className="font-instrument italic font-normal text-accent lowercase text-[1.15em] ml-3 sm:ml-4">team</span>
+            <span className="font-druk font-bold tracking-wider">join the</span>
+            <span className="font-display font-bold italic text-accent lowercase text-[1.1em] ml-4 sm:ml-5">team</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -235,21 +214,40 @@ const Application = () => {
 
         <FormProvider {...methods}>
           <form
-            onSubmit={handleSubmit(onSubmit, onInvalid)}
+            onSubmit={handleSubmit(onSubmit)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && e.target.tagName !== "TEXTAREA") {
                 e.preventDefault();
               }
             }}
           >
-            <div className={stage === 1 ? "block space-y-6" : "hidden"}>
-              <PersonalDetails />
-              <DepartmentSelector />
-            </div>
-
-            <div className={stage === 2 ? "block" : "hidden"}>
-              {renderDeptForm()}
-            </div>
+            <AnimatePresence mode="wait">
+              {stage === 1 && (
+                <motion.div
+                  key="stage1"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="space-y-6">
+                    <PersonalDetails />
+                    <DepartmentSelector />
+                  </div>
+                </motion.div>
+              )}
+              {stage === 2 && (
+                <motion.div
+                  key="stage2"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {renderDeptForm()}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Navigation & Submit Action Buttons styled after Alumni Meet CTA */}
             <div className="mt-10 flex items-center justify-between gap-4">

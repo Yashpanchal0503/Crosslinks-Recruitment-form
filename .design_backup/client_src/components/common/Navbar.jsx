@@ -35,9 +35,14 @@ const Navbar = () => {
               >
                 <Link to="/" className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0">
                   <img
-                    src={theme === "dark" ? "/img/logo-black.png" : "/img/logo-white.png"}
+                    src="/img/logo-black.png"
                     alt="Crosslinks Logo"
-                    className="h-8 w-auto object-contain transition-all"
+                    className="hidden dark:block h-8 w-auto object-contain transition-all"
+                  />
+                  <img
+                    src="/img/logo-white.png"
+                    alt="Crosslinks Logo"
+                    className="block dark:hidden h-8 w-auto object-contain transition-all"
                   />
                 </Link>
               </motion.div>
@@ -62,12 +67,11 @@ const Navbar = () => {
             )}
           </AnimatePresence>
 
-          {/* Theme Toggle Button (Mobile) */}
           <button
             aria-label="Toggle theme"
             type="button"
             onClick={toggleTheme}
-            className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-accent transition-colors cursor-pointer shrink-0"
+            className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-foreground/80 transition-colors cursor-pointer shrink-0"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4" />
@@ -79,12 +83,17 @@ const Navbar = () => {
 
         {/* Desktop View Layout (Logo Left, Address Bar Center, Theme Toggle Right) */}
         <div className="hidden sm:flex items-center justify-between w-full min-w-0 gap-4">
-          {/* Left: Brand Logo */}
+          {/* Left: Brand Logo Only */}
           <Link to="/" className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0">
             <img
-              src={theme === "dark" ? "/img/logo-black.png" : "/img/logo-white.png"}
+              src="/img/logo-black.png"
               alt="Crosslinks Logo"
-              className="h-9 w-auto object-contain transition-all"
+              className="hidden dark:block h-10 w-auto object-contain transition-all"
+            />
+            <img
+              src="/img/logo-white.png"
+              alt="Crosslinks Logo"
+              className="block dark:hidden h-10 w-auto object-contain transition-all"
             />
           </Link>
 
@@ -100,13 +109,13 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Right: Theme Toggle Button (Desktop) */}
+          {/* Right: Theme Toggle */}
           <div className="shrink-0 flex items-center">
             <button
               aria-label="Toggle theme"
               type="button"
               onClick={toggleTheme}
-              className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-accent transition-colors cursor-pointer shrink-0"
+              className="h-9 w-9 inline-flex items-center justify-center rounded-full hover:bg-accent/15 text-foreground/80 transition-colors cursor-pointer shrink-0"
             >
               {theme === "dark" ? (
                 <Sun className="h-4 w-4" />
