@@ -45,6 +45,8 @@ const questionLabels = {
   controversialOpinion: "Controversial Opinion",
   deskItemStory: "Boring Item Backstory",
   editingSoftware: "Video Editing Software Used",
+  techDomains: "Tech Domains Selected",
+  webDevType: "Web Development Specialization",
 };
 
 const AdminDashboard = () => {

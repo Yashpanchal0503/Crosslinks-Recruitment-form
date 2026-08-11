@@ -41,8 +41,11 @@ const connectDB = async () => {
     try {
       await Application.collection.dropIndexes();
       console.log('Old indexes dropped. Rebuilding compound key indexes for multi-department applications...');
+      // Recreate defined indexes (including compound unique index on email+department)
+      await Application.createIndexes();
+      console.log('Indexes recreated successfully.');
     } catch (indexError) {
-      console.log('Index dropping status (ignored):', indexError.message);
+      console.log('Index operation status (ignored):', indexError.message);
     }
 
     await autoSeedAdmin();

@@ -14,10 +14,12 @@ export const login = async (req, res) => {
 
     if (admin && (await admin.comparePassword(password))) {
       res.json({
-        _id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        token: generateToken(admin._id)
+        token: generateToken(admin._id),
+        admin: {
+          _id: admin._id,
+          name: admin.name,
+          email: admin.email
+        }
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

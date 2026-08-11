@@ -34,7 +34,7 @@ api.interceptors.response.use(
  */
 function transformApplicationData(data) {
   const deptFields = {
-    'Tech': ['motivation', 'skills', 'portfolioLink'],
+    'Tech': ['motivation', 'techDomains', 'webDevType', 'skills', 'portfolioLink'],
     'Graphic Design': ['interestReason', 'softwaresUsed', 'otherSoftware', 'driveLink'],
     'Photography': ['cameraModel', 'phoneModel', 'experienceLevel', 'portfolioLink'],
     'Content': ['controversialOpinion', 'deskItemStory', 'portfolioLink'],

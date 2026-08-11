@@ -24,10 +24,12 @@ export const getAllApplications = async (req, res) => {
     if (department) query.department = department;
     if (status) query.status = status;
     if (search) {
+      // Escape special regex characters to prevent injection crashes
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query['$or'] = [
-        { 'personalDetails.name': { $regex: search, $options: 'i' } },
-        { 'personalDetails.email': { $regex: search, $options: 'i' } },
-        { 'personalDetails.rollNumber': { $regex: search, $options: 'i' } }
+        { 'personalDetails.name': { $regex: escapedSearch, $options: 'i' } },
+        { 'personalDetails.email': { $regex: escapedSearch, $options: 'i' } },
+        { 'personalDetails.rollNumber': { $regex: escapedSearch, $options: 'i' } }
       ];
     }
     

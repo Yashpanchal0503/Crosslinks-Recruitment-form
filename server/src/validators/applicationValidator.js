@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const rollNumberRegex = /^2026[A-Z]{3}\d{4}$/;
+const rollNumberRegex = /^2026[a-zA-Z]{3}\d{4}$/;
 
 export const validateApplication = [
   body('personalDetails.name').notEmpty().withMessage('Name is required'),
