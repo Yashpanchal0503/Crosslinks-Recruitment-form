@@ -3,7 +3,7 @@ import { z } from "zod";
 // Shared regex definitions
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const rollNumberRegex = /^2026[a-zA-Z]{3}\d{4}$/;
-const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+const urlRegex = /^(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|[Nn]\/[Aa])$/;
 
 // Personal details (Stage 1)
 export const personalDetailsSchema = z.object({
@@ -27,7 +27,7 @@ const techSchemaBase = z.object({
   techDomains: z.array(z.string()).min(1, "Select at least one domain (Web Dev, App Dev, etc.)"),
   webDevType: z.string().optional(),
   skills: z.string().min(1, "Frameworks and languages required"),
-  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
+  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://, or N/A"),
 });
 
 // Tech Department - full schema with refinement (exported for standalone use)
@@ -46,7 +46,7 @@ const graphicDesignSchemaBase = z.object({
   interestReason: z.string().min(1, "Interest reason required"),
   softwaresUsed: z.array(z.string()).min(1, "Select at least one software"),
   otherSoftware: z.string().optional(),
-  driveLink: z.string().regex(urlRegex, "Must be a valid drive link starting with http:// or https://"),
+  driveLink: z.string().regex(urlRegex, "Must be a valid drive link starting with http:// or https://, or N/A"),
 });
 
 // Graphic Design - full schema with refinement (exported for standalone use)
@@ -65,20 +65,20 @@ export const photographySchema = z.object({
   cameraModel: z.string().min(1, "Camera details required"),
   phoneModel: z.string().min(1, "Phone details required"),
   experienceLevel: z.enum(["Beginner", "Intermediate", "Advanced"], { required_error: "Select experience level" }),
-  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
+  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://, or N/A"),
 });
 
 // Content Department
 export const contentSchema = z.object({
   controversialOpinion: z.string().min(1, "Opinion is required"),
   deskItemStory: z.string().min(1, "Story is required"),
-  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
+  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://, or N/A"),
 });
 
 // Video Editing Department
 export const videoEditingSchema = z.object({
   editingSoftware: z.string().min(1, "Editing software is required"),
-  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
+  portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://, or N/A"),
 });
 
 /**

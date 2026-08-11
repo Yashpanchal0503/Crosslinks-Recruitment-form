@@ -69,12 +69,12 @@ const ContentForm = () => {
             // Share the drive link to some of your <u>previous works</u> here *
           </label>
           <p className="text-[11px] text-muted-foreground mt-[-4px]">
-            (<u>ensure that the drive link has required permissions</u>)
+            (<u>ensure that the drive link has required permissions, or type N/A if no previous work exists</u>)
           </p>
           <input
             id="portfolioLink"
             type="text"
-            placeholder="Share the Google Drive link to your articles or documents..."
+            placeholder="Share the Google Drive link, or enter N/A..."
             {...register("portfolioLink")}
             className="input-field"
           />
