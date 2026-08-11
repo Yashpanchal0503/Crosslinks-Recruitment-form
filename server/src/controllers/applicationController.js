@@ -41,9 +41,10 @@ export const getAllApplications = async (req, res) => {
       
     res.json({
       applications,
-      totalPages: Math.ceil(count / limit),
-      currentPage: Number(page),
-      totalCount: count
+      totalApplications: count,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(count / limit)
     });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -103,17 +104,36 @@ export const getDepartments = async (req, res) => {
 
 export const getStats = async (req, res) => {
   try {
-    const totalApplications = await Application.countDocuments();
-    const departmentWise = await Application.aggregate([
-      { $group: { _id: '$department', count: { $sum: 1 } } }
+    const statsResult = await Application.aggregate([
+      {
+        $facet: {
+          total: [{ $count: "count" }],
+          byDepartment: [
+            { $group: { _id: "$department", count: { $sum: 1 } } }
+          ],
+          byStatus: [
+            { $group: { _id: "$status", count: { $sum: 1 } } }
+          ]
+        }
+      }
     ]);
-    
-    const submitted = await Application.countDocuments({ status: 'submitted' });
-    const underReview = await Application.countDocuments({ status: 'under-review' });
-    const shortlisted = await Application.countDocuments({ status: 'shortlisted' });
-    const rejected = await Application.countDocuments({ status: 'rejected' });
-    const selected = await Application.countDocuments({ status: 'selected' });
-    
+
+    const result = statsResult[0] || {};
+    const totalApplications = result.total && result.total[0] ? result.total[0].count : 0;
+    const departmentWise = result.byDepartment || [];
+
+    const getStatusCount = (statusName) => {
+      if (!result.byStatus) return 0;
+      const found = result.byStatus.find((s) => s._id === statusName);
+      return found ? found.count : 0;
+    };
+
+    const submitted = getStatusCount("submitted");
+    const underReview = getStatusCount("under-review");
+    const shortlisted = getStatusCount("shortlisted");
+    const rejected = getStatusCount("rejected");
+    const selected = getStatusCount("selected");
+
     res.json({
       totalApplications,
       departmentWise,
