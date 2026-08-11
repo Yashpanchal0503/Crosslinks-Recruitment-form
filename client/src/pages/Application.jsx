@@ -224,9 +224,10 @@ const Application = () => {
           </div>
 
           {/* Progress Sub-Bar */}
-          <div className="flex items-center justify-between px-4 mt-3 text-[11px] font-mono text-muted-foreground">
-            <span>// FORM PROGRESS: {stage === 1 ? "STEP 1 OF 2" : "STEP 2 OF 2"}</span>
-            <span className="text-accent font-semibold">{stage === 1 ? "0% COMPLETED" : "50% COMPLETED"}</span>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 mt-3 text-[11px] font-mono text-muted-foreground">
+            <span className="whitespace-nowrap">// FORM PROGRESS: <span className="">{stage === 1 ? "STEP 1 OF 2" : "STEP 2 OF 2"}</span></span>
+            
+            <span className="text-accent font-semibold whitespace-nowrap">{stage === 1 ? "0% COMPLETED" : "50% COMPLETED"}</span>
           </div>
         </div>
 
@@ -267,11 +268,9 @@ const Application = () => {
                     <div>
                       <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">// APPLICATION DEADLINE</p>
                       <p className="text-lg sm:text-xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">23 August, 2026</p>
+                      <p className="text-md sm:text-l font-bold text-foreground font-sans tracking-tight mt-0.5">11:59 PM</p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-mono font-bold text-amber-500 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
-                    ⏰ SUBMIT BEFORE DEADLINE
-                  </span>
                 </div>
 
                 <div className="h-px bg-border/60" />
