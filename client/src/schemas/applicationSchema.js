@@ -21,14 +21,17 @@ export const personalDetailsSchema = z.object({
   department: z.string().min(1, "Select department"),
 });
 
-// Tech Department (Stage 2)
-export const techSchema = z.object({
+// Tech Department - base object (without refine, so .merge() works)
+const techSchemaBase = z.object({
   motivation: z.string().min(1, "Motivation required"),
   techDomains: z.array(z.string()).min(1, "Select at least one domain (Web Dev, App Dev, etc.)"),
   webDevType: z.string().optional(),
   skills: z.string().min(1, "Frameworks and languages required"),
   portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
-}).refine((data) => {
+});
+
+// Tech Department - full schema with refinement (exported for standalone use)
+export const techSchema = techSchemaBase.refine((data) => {
   if (data.techDomains && data.techDomains.includes("Web Development") && (!data.webDevType || data.webDevType.trim() === "")) {
     return false;
   }
@@ -38,13 +41,16 @@ export const techSchema = z.object({
   path: ["webDevType"],
 });
 
-// Graphic Design Department
-export const graphicDesignSchema = z.object({
+// Graphic Design Department - base object (without refine, so .merge() works)
+const graphicDesignSchemaBase = z.object({
   interestReason: z.string().min(1, "Interest reason required"),
   softwaresUsed: z.array(z.string()).min(1, "Select at least one software"),
   otherSoftware: z.string().optional(),
   driveLink: z.string().regex(urlRegex, "Must be a valid drive link starting with http:// or https://"),
-}).refine((data) => {
+});
+
+// Graphic Design - full schema with refinement (exported for standalone use)
+export const graphicDesignSchema = graphicDesignSchemaBase.refine((data) => {
   if (data.softwaresUsed.includes("Other") && (!data.otherSoftware || data.otherSoftware.trim() === "")) {
     return false;
   }
@@ -75,12 +81,16 @@ export const videoEditingSchema = z.object({
   portfolioLink: z.string().regex(urlRegex, "Must be a valid link starting with http:// or https://"),
 });
 
+/**
+ * Returns the BASE z.object() schema for a department (safe for .merge()).
+ * Tech and GD return their base schemas without .refine() to avoid ZodEffects crash.
+ */
 export const getDepartmentSchema = (dept) => {
   switch (dept) {
     case "Tech":
-      return techSchema;
+      return techSchemaBase;
     case "Graphic Design":
-      return graphicDesignSchema;
+      return graphicDesignSchemaBase;
     case "Photography":
       return photographySchema;
     case "Content":
@@ -89,5 +99,36 @@ export const getDepartmentSchema = (dept) => {
       return videoEditingSchema;
     default:
       return z.object({});
+  }
+};
+
+/**
+ * Returns a superRefine callback for departments that need conditional validation.
+ * Returns null if the department has no extra refinements.
+ */
+export const getDepartmentRefinement = (dept) => {
+  switch (dept) {
+    case "Tech":
+      return (data, ctx) => {
+        if (data.techDomains && data.techDomains.includes("Web Development") && (!data.webDevType || data.webDevType.trim() === "")) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select whether you specialize in Front-end Only or Full-stack",
+            path: ["webDevType"],
+          });
+        }
+      };
+    case "Graphic Design":
+      return (data, ctx) => {
+        if (data.softwaresUsed && data.softwaresUsed.includes("Other") && (!data.otherSoftware || data.otherSoftware.trim() === "")) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please specify other softwares",
+            path: ["otherSoftware"],
+          });
+        }
+      };
+    default:
+      return null;
   }
 };

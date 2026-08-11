@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { personalDetailsSchema, getDepartmentSchema } from "../schemas/applicationSchema";
+import { personalDetailsSchema, getDepartmentSchema, getDepartmentRefinement } from "../schemas/applicationSchema";
 import { submitApplication } from "../services/api";
 import { ArrowLeft, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,7 +29,14 @@ const Application = () => {
         schema = personalDetailsSchema;
       } else {
         const deptSchema = getDepartmentSchema(data.department);
-        schema = personalDetailsSchema.merge(deptSchema);
+        // Merge base ZodObject schemas (safe — no ZodEffects crash)
+        let merged = personalDetailsSchema.merge(deptSchema);
+        // Apply conditional refinements (e.g. webDevType required when Web Dev selected)
+        const refinement = getDepartmentRefinement(data.department);
+        if (refinement) {
+          merged = merged.superRefine(refinement);
+        }
+        schema = merged;
       }
       return zodResolver(schema)(data, context, options);
     };
