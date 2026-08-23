@@ -1,28 +1,23 @@
 import Application from '../models/Application.js';
 
 export const submitApplication = async (req, res) => {
-  try {
-    const existing = await Application.findOne({ 
-      'personalDetails.email': req.body.personalDetails.email,
-      'department': req.body.department
-    });
-    if (existing) {
-      return res.status(400).json({ message: 'You have already submitted an application for this department.' });
-    }
-    const application = await Application.create(req.body);
-    res.status(201).json(application);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
+  return res.status(403).json({ 
+    message: 'Applications are closed. We are no longer accepting new submissions for recruitments 2026.' 
+  });
 };
 
 export const getAllApplications = async (req, res) => {
   try {
     const { department, status, search, page = 1, limit = 20 } = req.query;
     let query = {};
-    
-    if (department) query.department = department;
-    if (status) query.status = status;
+    if (department && department !== 'All') query.department = department;
+    if (status && status !== 'All') {
+      if (status === 'pending') {
+        query.status = { $in: ['submitted', 'under-review'] };
+      } else {
+        query.status = status;
+      }
+    }
     if (search) {
       // Escape special regex characters to prevent injection crashes
       const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

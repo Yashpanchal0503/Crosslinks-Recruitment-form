@@ -57,6 +57,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [selectedApp, setSelectedApp] = useState(null);
   const [selectedDept, setSelectedDept] = useState("All");
+  const [selectedStatus, setSelectedStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -71,7 +72,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchApplications = async (currentPage, dept, search) => {
+  const fetchApplications = async (currentPage, dept, status, search) => {
     setLoading(true);
     try {
       const params = {
@@ -79,6 +80,7 @@ const AdminDashboard = () => {
         limit: 20,
       };
       if (dept !== "All") params.department = dept;
+      if (status !== "All") params.status = status;
       if (search.trim() !== "") params.search = search.trim();
 
       const res = await getApplications(params);
@@ -98,14 +100,19 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      fetchApplications(page, selectedDept, searchQuery);
+      fetchApplications(page, selectedDept, selectedStatus, searchQuery);
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [page, selectedDept, searchQuery]);
+  }, [page, selectedDept, selectedStatus, searchQuery]);
 
   const handleDeptChange = (newDept) => {
     setSelectedDept(newDept);
+    setPage(1);
+  };
+
+  const handleStatusFilterChange = (newStatus) => {
+    setSelectedStatus(newStatus);
     setPage(1);
   };
 
@@ -188,10 +195,34 @@ const AdminDashboard = () => {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-            <StatCard title="Total Applications" value={stats.totalApplications} icon={<Users className="w-4 h-4 text-accent" />} />
-            <StatCard title="Pending Review" value={stats.pending} icon={<Clock className="w-4 h-4 text-amber-500" />} />
-            <StatCard title="Shortlisted" value={stats.shortlisted} icon={<CheckCircle2 className="w-4 h-4 text-blue-500" />} />
-            <StatCard title="Selected" value={stats.selected} icon={<UserCheck className="w-4 h-4 text-emerald-500" />} />
+            <StatCard 
+              title="Total Applications" 
+              value={stats.totalApplications} 
+              icon={<Users className="w-4 h-4 text-accent" />} 
+              onClick={() => handleStatusFilterChange("All")}
+              active={selectedStatus === "All"}
+            />
+            <StatCard 
+              title="Pending Review" 
+              value={stats.pending} 
+              icon={<Clock className="w-4 h-4 text-amber-500" />} 
+              onClick={() => handleStatusFilterChange(selectedStatus === "pending" ? "All" : "pending")}
+              active={selectedStatus === "pending"}
+            />
+            <StatCard 
+              title="Shortlisted" 
+              value={stats.shortlisted} 
+              icon={<CheckCircle2 className="w-4 h-4 text-blue-500" />} 
+              onClick={() => handleStatusFilterChange(selectedStatus === "shortlisted" ? "All" : "shortlisted")}
+              active={selectedStatus === "shortlisted"}
+            />
+            <StatCard 
+              title="Selected" 
+              value={stats.selected} 
+              icon={<UserCheck className="w-4 h-4 text-emerald-500" />} 
+              onClick={() => handleStatusFilterChange(selectedStatus === "selected" ? "All" : "selected")}
+              active={selectedStatus === "selected"}
+            />
           </div>
         )}
 
@@ -229,6 +260,23 @@ const AdminDashboard = () => {
                   <option value="Photography">Photography</option>
                   <option value="Content">Content</option>
                   <option value="Video Editing">Video Editing</option>
+                </select>
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => handleStatusFilterChange(e.target.value)}
+                  className="input-field text-xs py-2 px-3 rounded-full cursor-pointer capitalize"
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="pending">Pending Review</option>
+                  <option value="shortlisted">Shortlisted</option>
+                  <option value="selected">Selected</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="under-review">Under Review</option>
                 </select>
               </div>
             </div>
@@ -461,11 +509,14 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({ title, value, icon }) => (
+const StatCard = ({ title, value, icon, onClick, active }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     whileInView={{ opacity: 1, y: 0 }}
-    className="p-5 glass-card rounded-2xl border border-border text-center flex flex-col items-center justify-center gap-1"
+    onClick={onClick}
+    className={`p-5 glass-card rounded-2xl border text-center flex flex-col items-center justify-center gap-1 cursor-pointer transition-all duration-200 ${
+      active ? "border-accent ring-1 ring-accent/30 shadow-lg shadow-accent/10" : "border-border"
+    }`}
   >
     <div className="flex items-center gap-2 mb-1">
       {icon}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { Sun, Moon, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -33,13 +32,18 @@ const Navbar = () => {
                 transition={{ duration: 0.2 }}
                 className="flex items-center shrink-0"
               >
-                <Link to="/" className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0">
+                <a
+                  href="https://crosslinksnsut.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0"
+                >
                   <img
                     src={theme === "dark" ? "/img/logo-black.png" : "/img/logo-white.png"}
                     alt="Crosslinks Logo"
                     className="h-8 w-auto object-contain transition-all"
                   />
-                </Link>
+                </a>
               </motion.div>
             ) : (
               <motion.div
@@ -80,13 +84,18 @@ const Navbar = () => {
         {/* Desktop View Layout (Logo Left, Address Bar Center, Theme Toggle Right) */}
         <div className="hidden sm:flex items-center justify-between w-full min-w-0 gap-4">
           {/* Left: Brand Logo */}
-          <Link to="/" className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0">
+          <a
+            href="https://crosslinksnsut.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:opacity-90 transition-opacity cursor-pointer flex items-center shrink-0"
+          >
             <img
               src={theme === "dark" ? "/img/logo-black.png" : "/img/logo-white.png"}
               alt="Crosslinks Logo"
               className="h-9 w-auto object-contain transition-all"
             />
-          </Link>
+          </a>
 
           {/* Center: Centered Dummy Address Bar Capsule Pill */}
           <div className="flex-1 flex justify-center px-2 min-w-0">
