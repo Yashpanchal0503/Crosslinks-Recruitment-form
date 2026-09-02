@@ -1,9 +1,19 @@
 import Application from '../models/Application.js';
 
 export const submitApplication = async (req, res) => {
-  return res.status(403).json({ 
-    message: 'Applications are closed. We are no longer accepting new submissions for recruitments 2026.' 
-  });
+  try {
+    const existing = await Application.findOne({ 
+      'personalDetails.email': req.body.personalDetails.email,
+      'department': req.body.department
+    });
+    if (existing) {
+      return res.status(400).json({ message: 'You have already submitted an application for this department.' });
+    }
+    const application = await Application.create(req.body);
+    res.status(201).json(application);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
 };
 
 export const getAllApplications = async (req, res) => {
