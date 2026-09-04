@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { getApplications, updateApplicationStatus, getStats } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,6 +49,27 @@ const questionLabels = {
   webDevType: "Web Development Specialization",
 };
 
+const getPaginationRange = (currentPage, totalPages) => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, idx) => idx + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+  return [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages];
+};
+
 const AdminDashboard = () => {
   const { admin, logout } = useAuth();
   const [allApplications, setAllApplications] = useState([]);
@@ -62,6 +83,15 @@ const AdminDashboard = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const tableRef = useRef(null);
+
+  const handlePageChange = (newPage) => {
+    if (newPage === page || loading) return;
+    setPage(newPage);
+    if (tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -254,7 +284,7 @@ const AdminDashboard = () => {
         )}
 
         {/* Applications List Table */}
-        <div className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl">
+        <div ref={tableRef} className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl scroll-mt-32">
           <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-foreground font-sans">Applicant Records</h2>
@@ -378,41 +408,83 @@ const AdminDashboard = () => {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-between gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
+            <div className="p-4 sm:p-5 border-t border-border flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
               <button
                 type="button"
                 disabled={page === 1 || loading}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="h-8 px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
+                className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
               >
-                ← Previous
+                ← <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
               </button>
-              <div className="hidden sm:flex items-center gap-1.5">
-                {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
-                  <button
-                    key={pNum}
-                    type="button"
-                    onClick={() => setPage(pNum)}
-                    className={`w-8 h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-                      page === pNum
-                        ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20"
-                        : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
-                    }`}
-                  >
-                    {pNum}
-                  </button>
-                ))}
+
+              {/* Center Pagination View */}
+              <div className="flex items-center gap-1.5">
+                {/* Mobile View: Compact Pill */}
+                <div className="flex sm:hidden items-center gap-1.5 px-3 py-1 rounded-full bg-card border border-border text-xs font-mono">
+                  <span>Page</span>
+                  <span className="text-accent font-bold">{page}</span>
+                  <span>of {totalPages}</span>
+                </div>
+
+                {/* Tablet / Desktop View: Smart Truncated Range */}
+                <div className="hidden sm:flex items-center gap-1">
+                  {getPaginationRange(page, totalPages).map((item, idx) => {
+                    if (item === "...") {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="w-7 sm:w-8 h-8 flex items-center justify-center text-xs font-mono text-muted-foreground select-none"
+                        >
+                          •••
+                        </span>
+                      );
+                    }
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handlePageChange(item)}
+                        className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                          page === item
+                            ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20 scale-105"
+                            : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop Jump-To Selector */}
+                {totalPages > 7 && (
+                  <div className="hidden md:flex items-center gap-1.5 text-xs font-mono text-muted-foreground ml-2 border-l border-border/80 pl-2.5">
+                    <span>Jump:</span>
+                    <select
+                      value={page}
+                      disabled={loading}
+                      onChange={(e) => handlePageChange(Number(e.target.value))}
+                      className="h-7 bg-card border border-border text-foreground text-xs rounded-lg px-2 focus:border-accent focus:outline-none cursor-pointer font-medium"
+                    >
+                      {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
+                        <option key={pNum} value={pNum}>
+                          Page {pNum}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <span className="sm:hidden">
-                Page {page} of {totalPages}
-              </span>
+
               <button
                 type="button"
                 disabled={page === totalPages || loading}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="h-8 px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed"
+                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+                className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
               >
-                Next →
+                <span className="hidden sm:inline">Next</span><span className="sm:hidden">Next</span> →
               </button>
             </div>
           )}
@@ -435,18 +507,18 @@ const AdminDashboard = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl glass-card rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col border border-border"
+              className="relative w-full max-w-2xl glass-card rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[92vh] sm:max-h-[90vh] flex flex-col border border-border"
             >
-              <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border bg-card">
-                <div className="pr-2">
-                  <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
+              <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border bg-card gap-2">
+                <div className="min-w-0 flex-1 pr-1 sm:pr-2">
+                  <h3 className="text-base sm:text-xl font-bold text-foreground font-sans truncate">
                     {selectedApp.personalDetails?.name}
                   </h3>
-                  <p className="text-xs text-accent font-mono tracking-wider mt-0.5">
+                  <p className="text-[11px] sm:text-xs text-accent font-mono tracking-wider mt-0.5 truncate">
                     // CANDIDATE DOSSIER {currentAppIndex >= 0 ? `(${currentAppIndex + 1} OF ${allApplications.length})` : ""}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={handlePrevApp}
@@ -477,7 +549,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-foreground">
+              <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6 flex-1 text-sm text-foreground">
                 <div>
                   <h4 className="text-xs font-mono text-accent uppercase tracking-widest mb-3 font-semibold">// PERSONAL DETAILS</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-muted/40 p-4 rounded-2xl border border-border text-xs">
@@ -539,19 +611,19 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-border bg-card flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
-                  <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
+              <div className="p-3.5 sm:p-4 border-t border-border bg-card flex items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[11px] sm:text-xs text-muted-foreground font-mono">STATUS:</span>
+                  <span className={`px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
                     {selectedApp.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground font-mono hidden sm:inline">CHANGE STATUS:</span>
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
-                    className="h-9 bg-muted border border-border text-foreground text-xs rounded-full px-3 focus:border-accent focus:outline-none cursor-pointer font-medium"
+                    className="h-8 sm:h-9 bg-muted border border-border text-foreground text-xs rounded-full px-2.5 sm:px-3 focus:border-accent focus:outline-none cursor-pointer font-medium"
                   >
                     {statusOptions.map((opt) => (
                       <option key={opt} value={opt}>
