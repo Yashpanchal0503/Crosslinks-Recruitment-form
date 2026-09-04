@@ -266,7 +266,7 @@ const Application = () => {
                     </div>
                     <div>
                       <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">// APPLICATION DEADLINE</p>
-                      <p className="text-lg sm:text-xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">23 August, 2026</p>
+                      <p className="text-lg sm:text-xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">10 September, 2026</p>
                       <p className="text-md sm:text-l font-bold text-foreground font-sans tracking-tight mt-0.5">11:59 PM</p>
                     </div>
                   </div>

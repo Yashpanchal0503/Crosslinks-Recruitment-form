@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { getApplications, updateApplicationStatus, getStats } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye, LogOut, Search, Filter, CheckCircle2, Clock, Users, UserCheck } from "lucide-react";
+import { X, Eye, LogOut, Search, Filter, CheckCircle2, Clock, Users, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
 
@@ -136,28 +136,49 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading && allApplications.length === 0) {
-    return (
-      <div className="min-h-screen bg-background text-foreground p-6 pt-28">
-        <Navbar />
-        <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
-          <div className="flex justify-between items-center">
-            <div className="space-y-2">
-              <div className="h-8 w-52 bg-muted rounded-md" />
-              <div className="h-4 w-36 bg-muted rounded-md" />
-            </div>
-            <div className="h-10 w-24 bg-muted rounded-full" />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-24 bg-muted/40 border border-border rounded-xl" />
-            ))}
-          </div>
-          <div className="bg-card border border-border rounded-2xl h-96" />
-        </div>
-      </div>
-    );
-  }
+  const currentAppIndex = allApplications.findIndex(
+    (app) => app._id === selectedApp?._id
+  );
+  const hasPrevApp = currentAppIndex > 0;
+  const hasNextApp =
+    currentAppIndex >= 0 && currentAppIndex < allApplications.length - 1;
+
+  const handlePrevApp = () => {
+    if (hasPrevApp) {
+      setSelectedApp(allApplications[currentAppIndex - 1]);
+    }
+  };
+
+  const handleNextApp = () => {
+    if (hasNextApp) {
+      setSelectedApp(allApplications[currentAppIndex + 1]);
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedApp) return;
+
+    const handleKeyDown = (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (hasPrevApp) {
+          setSelectedApp(allApplications[currentAppIndex - 1]);
+        }
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (hasNextApp) {
+          setSelectedApp(allApplications[currentAppIndex + 1]);
+        }
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setSelectedApp(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedApp, currentAppIndex, allApplications, hasPrevApp, hasNextApp]);
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 pt-28 sm:pt-32 relative transition-colors duration-300">
@@ -193,7 +214,7 @@ const AdminDashboard = () => {
         )}
 
         {/* Stats Cards */}
-        {stats && (
+        {stats ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
             <StatCard 
               title="Total Applications" 
@@ -224,6 +245,12 @@ const AdminDashboard = () => {
               active={selectedStatus === "selected"}
             />
           </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
         )}
 
         {/* Applications List Table */}
@@ -231,7 +258,15 @@ const AdminDashboard = () => {
           <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-foreground font-sans">Applicant Records</h2>
-              <p className="text-xs text-muted-foreground font-mono">// TOTAL {totalCount} CANDIDATES FOUND</p>
+              <p className="text-xs text-muted-foreground font-mono">
+                {loading ? (
+                  <span className="inline-flex items-center gap-1.5 animate-pulse text-accent">
+                    // LOADING APPLICANTS...
+                  </span>
+                ) : (
+                  `// TOTAL ${totalCount} CANDIDATES FOUND`
+                )}
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -294,38 +329,43 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {allApplications.map((app) => (
-                  <tr key={app._id} className="hover:bg-muted/30 transition-colors">
-                    <td className="p-4 text-foreground font-semibold text-sm">{app.personalDetails?.name}</td>
-                    <td className="p-4 text-muted-foreground text-xs">{app.personalDetails?.email}</td>
-                    <td className="p-4 text-accent text-xs font-mono font-semibold">{app.department}</td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(app.status)}`}>
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="p-4 flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => setSelectedApp(app)}
-                        className="h-8 px-3 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-xs text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer font-medium"
-                      >
-                        <Eye size={13} /> View
-                      </button>
-                      <select
-                        value={app.status}
-                        onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                        className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2 focus:border-accent focus:outline-none cursor-pointer"
-                      >
-                        {statusOptions.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-                {allApplications.length === 0 && (
+                {loading ? (
+                  Array.from({ length: 7 }).map((_, idx) => (
+                    <TableRowSkeleton key={`skeleton-${idx}`} />
+                  ))
+                ) : allApplications.length > 0 ? (
+                  allApplications.map((app) => (
+                    <tr key={app._id} className="hover:bg-muted/30 transition-colors">
+                      <td className="p-4 text-foreground font-semibold text-sm">{app.personalDetails?.name}</td>
+                      <td className="p-4 text-muted-foreground text-xs">{app.personalDetails?.email}</td>
+                      <td className="p-4 text-accent text-xs font-mono font-semibold">{app.department}</td>
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(app.status)}`}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td className="p-4 flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setSelectedApp(app)}
+                          className="h-8 px-3 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-xs text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer font-medium"
+                        >
+                          <Eye size={13} /> View
+                        </button>
+                        <select
+                          value={app.status}
+                          onChange={(e) => handleStatusChange(app._id, e.target.value)}
+                          className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2 focus:border-accent focus:outline-none cursor-pointer"
+                        >
+                          {statusOptions.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
                   <tr>
                     <td colSpan={5} className="p-12 text-center text-muted-foreground text-sm font-mono">
                       No matching candidate applications found.
@@ -397,19 +437,44 @@ const AdminDashboard = () => {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-2xl glass-card rounded-3xl shadow-2xl overflow-hidden z-10 max-h-[90vh] flex flex-col border border-border"
             >
-              <div className="flex items-center justify-between p-6 border-b border-border bg-card">
-                <div>
-                  <h3 className="text-xl font-bold text-foreground font-sans">
+              <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border bg-card">
+                <div className="pr-2">
+                  <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
                     {selectedApp.personalDetails?.name}
                   </h3>
-                  <p className="text-xs text-accent font-mono tracking-wider mt-0.5">// CANDIDATE DOSSIER</p>
+                  <p className="text-xs text-accent font-mono tracking-wider mt-0.5">
+                    // CANDIDATE DOSSIER {currentAppIndex >= 0 ? `(${currentAppIndex + 1} OF ${allApplications.length})` : ""}
+                  </p>
                 </div>
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="h-8 w-8 rounded-full border border-border bg-muted flex items-center justify-center text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handlePrevApp}
+                    disabled={!hasPrevApp}
+                    title="Previous Candidate (Left Arrow)"
+                    className="h-8 px-2.5 sm:px-3 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    <span className="hidden sm:inline">Prev</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextApp}
+                    disabled={!hasNextApp}
+                    title="Next Candidate (Right Arrow)"
+                    className="h-8 px-2.5 sm:px-3 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                  <button
+                    onClick={() => setSelectedApp(null)}
+                    className="h-8 w-8 rounded-full border border-border bg-muted flex items-center justify-center text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer ml-1"
+                    title="Close (Esc)"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
 
               <div className="p-6 overflow-y-auto space-y-6 flex-1 text-sm text-foreground">
@@ -474,14 +539,43 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-border bg-card flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
-                  <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
-                    {selectedApp.status}
-                  </span>
+              <div className="p-4 border-t border-border bg-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center justify-between sm:justify-start gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
+                    <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
+                      {selectedApp.status}
+                    </span>
+                  </div>
+                  {currentAppIndex >= 0 && (
+                    <span className="text-xs font-mono text-muted-foreground sm:hidden">
+                      {currentAppIndex + 1} / {allApplications.length}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-end gap-2 sm:gap-3 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handlePrevApp}
+                    disabled={!hasPrevApp}
+                    className="h-9 px-3.5 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={14} /> Prev
+                  </button>
+                  {currentAppIndex >= 0 && (
+                    <span className="text-xs font-mono text-muted-foreground hidden sm:inline px-1">
+                      {currentAppIndex + 1} of {allApplications.length}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleNextApp}
+                    disabled={!hasNextApp}
+                    className="h-9 px-3.5 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+                  >
+                    Next <ChevronRight size={14} />
+                  </button>
+
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
@@ -495,7 +589,7 @@ const AdminDashboard = () => {
                   </select>
                   <button
                     onClick={() => setSelectedApp(null)}
-                    className="h-9 px-5 bg-accent text-accent-foreground rounded-full text-xs font-semibold cursor-pointer"
+                    className="h-9 px-5 bg-accent text-accent-foreground rounded-full text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     Close
                   </button>
@@ -526,6 +620,40 @@ const StatCard = ({ title, value, icon, onClick, active }) => (
       {value}
     </p>
   </motion.div>
+);
+
+const StatCardSkeleton = () => (
+  <div className="p-5 glass-card rounded-2xl border border-border text-center flex flex-col items-center justify-center gap-2 animate-pulse">
+    <div className="flex items-center gap-2 mb-1">
+      <div className="w-4 h-4 rounded-full bg-muted/80" />
+      <div className="h-3.5 w-28 bg-muted/70 rounded-md" />
+    </div>
+    <div className="h-9 w-16 bg-muted/90 rounded-lg mt-0.5" />
+  </div>
+);
+
+const TableRowSkeleton = () => (
+  <tr className="animate-pulse">
+    <td className="p-4">
+      <div className="flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-full bg-muted/80 shrink-0" />
+        <div className="h-4 w-32 bg-muted/80 rounded-md" />
+      </div>
+    </td>
+    <td className="p-4">
+      <div className="h-3.5 w-36 sm:w-48 bg-muted/60 rounded-md" />
+    </td>
+    <td className="p-4">
+      <div className="h-5 w-20 bg-muted/70 rounded-full" />
+    </td>
+    <td className="p-4">
+      <div className="h-6 w-24 bg-muted/60 rounded-full" />
+    </td>
+    <td className="p-4 flex items-center justify-center gap-2">
+      <div className="h-8 w-16 bg-muted/70 rounded-full" />
+      <div className="h-8 w-24 bg-muted/70 rounded-full" />
+    </td>
+  </tr>
 );
 
 export default AdminDashboard;
