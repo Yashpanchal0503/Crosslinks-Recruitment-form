@@ -539,43 +539,15 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-border bg-card flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center justify-between sm:justify-start gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
-                    <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
-                      {selectedApp.status}
-                    </span>
-                  </div>
-                  {currentAppIndex >= 0 && (
-                    <span className="text-xs font-mono text-muted-foreground sm:hidden">
-                      {currentAppIndex + 1} / {allApplications.length}
-                    </span>
-                  )}
+              <div className="p-4 border-t border-border bg-card flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground font-mono">STATUS:</span>
+                  <span className={`px-3 py-0.5 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(selectedApp.status)}`}>
+                    {selectedApp.status}
+                  </span>
                 </div>
-                <div className="flex items-center justify-end gap-2 sm:gap-3 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={handlePrevApp}
-                    disabled={!hasPrevApp}
-                    className="h-9 px-3.5 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
-                  >
-                    <ChevronLeft size={14} /> Prev
-                  </button>
-                  {currentAppIndex >= 0 && (
-                    <span className="text-xs font-mono text-muted-foreground hidden sm:inline px-1">
-                      {currentAppIndex + 1} of {allApplications.length}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={handleNextApp}
-                    disabled={!hasNextApp}
-                    className="h-9 px-3.5 inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 text-xs font-mono font-medium text-foreground hover:border-accent hover:text-accent disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
-                  >
-                    Next <ChevronRight size={14} />
-                  </button>
-
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs text-muted-foreground font-mono hidden sm:inline">CHANGE STATUS:</span>
                   <select
                     value={selectedApp.status}
                     onChange={(e) => handleStatusChange(selectedApp._id, e.target.value)}
@@ -587,12 +559,6 @@ const AdminDashboard = () => {
                       </option>
                     ))}
                   </select>
-                  <button
-                    onClick={() => setSelectedApp(null)}
-                    className="h-9 px-5 bg-accent text-accent-foreground rounded-full text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
             </motion.div>
