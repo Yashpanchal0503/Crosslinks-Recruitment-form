@@ -151,35 +151,3 @@ export const getStats = async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
-
-export const getShortlistedCandidates = async (req, res) => {
-  try {
-    const { department, search } = req.query;
-    let query = { status: 'shortlisted' };
-
-    if (department && department !== 'All') {
-      query.department = department;
-    }
-
-    if (search) {
-      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query['$or'] = [
-        { 'personalDetails.name': { $regex: escapedSearch, $options: 'i' } },
-        { 'personalDetails.rollNumber': { $regex: escapedSearch, $options: 'i' } }
-      ];
-    }
-
-    const candidates = await Application.find(query)
-      .select('personalDetails.name personalDetails.rollNumber personalDetails.branch personalDetails.campus department status')
-      .sort({ 'personalDetails.name': 1 });
-
-    res.json({
-      success: true,
-      candidates,
-      count: candidates.length
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
-
