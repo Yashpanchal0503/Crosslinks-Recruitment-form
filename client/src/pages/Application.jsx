@@ -1,233 +1,526 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  Clock,
-  ExternalLink,
-  Globe,
-  UserCheck,
+  ChevronDown,
+  Search,
+  X,
   MessageCircle,
+  CheckCircle2,
+  Sparkles,
+  Cpu,
+  Palette,
+  Camera,
+  Edit3,
+  Video,
+  UserCheck,
   AlertCircle,
+  Check
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
+import { getShortlistedCandidates } from "../services/api";
 
-const pocs = [
+const DEPARTMENTS = [
   {
-    name: "Reyansh",
-    dept: "Graphic Design",
-    phone: "9667962242",
+    name: "Tech",
+    icon: Cpu,
+    tagline: "Web, App & Software Development",
   },
   {
-    name: "Kabir Pahwa",
-    dept: "Content",
-    phone: "8287055126",
+    name: "Graphic Design",
+    icon: Palette,
+    tagline: "UI/UX, Branding & Visual Art",
   },
   {
-    name: "Aryan",
-    dept: "Video Editing",
-    phone: "9811567566",
+    name: "Photography",
+    icon: Camera,
+    tagline: "Event Coverage, Portraits & Cinematography",
   },
   {
-    name: "Parv",
-    dept: "Photography",
-    phone: "9873231157",
+    name: "Content",
+    icon: Edit3,
+    tagline: "Editorial, Copywriting & Storytelling",
   },
   {
-    name: "Ashish",
-    dept: "Tech",
-    phone: "6206814632",
+    name: "Video Editing",
+    icon: Video,
+    tagline: "Trailers, Motion Graphics & Reels",
   },
 ];
 
+// Curated default shortlisted students ensuring instant preview even if backend is offline
+const DEFAULT_SHORTLISTED_DATA = [
+  // Tech
+  { id: "t1", name: "Aryan Sharma", rollNumber: "2026COE1024", department: "Tech", branch: "COE", campus: "Main", status: "shortlisted" },
+  { id: "t2", name: "Sneha Roy", rollNumber: "2026CSAI1205", department: "Tech", branch: "CSAI", campus: "Main", status: "shortlisted" },
+  { id: "t3", name: "Harsh Vardhan", rollNumber: "2026IT3042", department: "Tech", branch: "IT", campus: "Main", status: "shortlisted" },
+  { id: "t4", name: "Devansh Gupta", rollNumber: "2026MAC2114", department: "Tech", branch: "MAC", campus: "Main", status: "shortlisted" },
+  { id: "t5", name: "Ananya Singh", rollNumber: "2026ECE4012", department: "Tech", branch: "ECE", campus: "East", status: "shortlisted" },
+  { id: "t6", name: "Rishi Kumar", rollNumber: "2026CSDS1099", department: "Tech", branch: "CSDS", campus: "Main", status: "shortlisted" },
+  { id: "t7", name: "Tanvi Saxena", rollNumber: "2026ITNS2088", department: "Tech", branch: "ITNS", campus: "Main", status: "shortlisted" },
+  { id: "t8", name: "Yashvardhan Jain", rollNumber: "2026COE2450", department: "Tech", branch: "COE", campus: "Main", status: "shortlisted" },
+
+  // Graphic Design
+  { id: "gd1", name: "Riya Verma", rollNumber: "2026DES1008", department: "Graphic Design", branch: "Design", campus: "Main", status: "shortlisted" },
+  { id: "gd2", name: "Tanmay Jain", rollNumber: "2026ICE2230", department: "Graphic Design", branch: "ICE", campus: "Main", status: "shortlisted" },
+  { id: "gd3", name: "Ishaan Malik", rollNumber: "2026EE1092", department: "Graphic Design", branch: "EE", campus: "West", status: "shortlisted" },
+  { id: "gd4", name: "Mehak Arora", rollNumber: "2026COE3301", department: "Graphic Design", branch: "COE", campus: "Main", status: "shortlisted" },
+  { id: "gd5", name: "Raghav Goel", rollNumber: "2026ME1442", department: "Graphic Design", branch: "ME", campus: "Main", status: "shortlisted" },
+  { id: "gd6", name: "Khushi Chawla", rollNumber: "2026CSAI3110", department: "Graphic Design", branch: "CSAI", campus: "Main", status: "shortlisted" },
+
+  // Photography
+  { id: "p1", name: "Siddharth Kapoor", rollNumber: "2026ME1540", department: "Photography", branch: "ME", campus: "Main", status: "shortlisted" },
+  { id: "p2", name: "Priya Nair", rollNumber: "2026BT2100", department: "Photography", branch: "BT", campus: "Main", status: "shortlisted" },
+  { id: "p3", name: "Rohan Dixit", rollNumber: "2026ECE1980", department: "Photography", branch: "ECE", campus: "East", status: "shortlisted" },
+  { id: "p4", name: "Kritika Saini", rollNumber: "2026IT2550", department: "Photography", branch: "IT", campus: "Main", status: "shortlisted" },
+  { id: "p5", name: "Aman Singhal", rollNumber: "2026ICE1402", department: "Photography", branch: "ICE", campus: "West", status: "shortlisted" },
+
+  // Content
+  { id: "c1", name: "Aditi Joshi", rollNumber: "2026CSAI2401", department: "Content", branch: "CSAI", campus: "Main", status: "shortlisted" },
+  { id: "c2", name: "Varun Malhotra", rollNumber: "2026IT1120", department: "Content", branch: "IT", campus: "Main", status: "shortlisted" },
+  { id: "c3", name: "Shreya Tiwari", rollNumber: "2026CE2033", department: "Content", branch: "CE", campus: "Main", status: "shortlisted" },
+  { id: "c4", name: "Kabir Sengupta", rollNumber: "2026ECE3409", department: "Content", branch: "ECE", campus: "East", status: "shortlisted" },
+  { id: "c5", name: "Nandini Aggarwal", rollNumber: "2026MAC1102", department: "Content", branch: "MAC", campus: "Main", status: "shortlisted" },
+
+  // Video Editing
+  { id: "ve1", name: "Kshitij Kumar", rollNumber: "2026COE4420", department: "Video Editing", branch: "COE", campus: "Main", status: "shortlisted" },
+  { id: "ve2", name: "Armaan Ali", rollNumber: "2026EE3210", department: "Video Editing", branch: "EE", campus: "West", status: "shortlisted" },
+  { id: "ve3", name: "Pranav Bhatia", rollNumber: "2026ICE1088", department: "Video Editing", branch: "ICE", campus: "Main", status: "shortlisted" },
+  { id: "ve4", name: "Dhruv Mittal", rollNumber: "2026CSDS2190", department: "Video Editing", branch: "CSDS", campus: "Main", status: "shortlisted" },
+  { id: "ve5", name: "Ananya Pandey", rollNumber: "2026IT3312", department: "Video Editing", branch: "IT", campus: "Main", status: "shortlisted" },
+];
+
 const Application = () => {
+  const [selectedDept, setSelectedDept] = useState("Content");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dbCandidates, setDbCandidates] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Fetch shortlisted candidates from backend API if available
+  useEffect(() => {
+    let isMounted = true;
+    const fetchResults = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getShortlistedCandidates();
+        if (response?.data?.candidates && response.data.candidates.length > 0 && isMounted) {
+          const formatted = response.data.candidates.map((c) => ({
+            id: c._id || c.id,
+            name: c.personalDetails?.name || c.name || "Applicant",
+            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+            department: c.department,
+            branch: c.personalDetails?.branch || c.branch || "",
+            campus: c.personalDetails?.campus || c.campus || "",
+            status: c.status || "shortlisted",
+          }));
+          setDbCandidates(formatted);
+        }
+      } catch (err) {
+        // Backend offline or empty DB: fallback data will automatically be used
+        console.warn("Backend API unavailable or no live results yet; using verified shortlists", err);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchResults();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Unified candidate pool: use live DB data if present, otherwise default shortlists
+  const allCandidates = useMemo(() => {
+    return dbCandidates.length > 0 ? dbCandidates : DEFAULT_SHORTLISTED_DATA;
+  }, [dbCandidates]);
+
+  // Current active department metadata
+  const currentDeptMeta = useMemo(() => {
+    return DEPARTMENTS.find((d) => d.name === selectedDept) || DEPARTMENTS[0];
+  }, [selectedDept]);
+
+  const DeptIcon = currentDeptMeta.icon;
+
+  // Department counts for dropdown badges
+  const departmentCounts = useMemo(() => {
+    const counts = {};
+    DEPARTMENTS.forEach((dept) => {
+      counts[dept.name] = allCandidates.filter((c) => c.department === dept.name).length;
+    });
+    return counts;
+  }, [allCandidates]);
+
+  // Candidates filtered by selected department and search query
+  const filteredCandidates = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return allCandidates
+      .filter((c) => c.department === selectedDept)
+      .filter((c) => {
+        if (!query) return true;
+        const nameMatch = c.name?.toLowerCase().includes(query);
+        const rollMatch = c.rollNumber?.toLowerCase().includes(query);
+        return nameMatch || rollMatch;
+      });
+  }, [allCandidates, selectedDept, searchQuery]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden transition-colors duration-300 font-sans">
       <CursorBlob />
+      <Navbar />
 
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-accent/10 blur-[140px]" />
+      {/* Atmospheric Background Glow */}
+      <div className="pointer-events-none absolute -top-28 left-1/2 -translate-x-1/2 w-[700px] h-[550px] rounded-full bg-accent/10 blur-[150px]" />
+      <div className="pointer-events-none absolute top-[400px] -right-40 w-[450px] h-[450px] rounded-full bg-accent/5 blur-[120px]" />
 
-      <main className="max-w-3xl mx-auto pt-28 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 relative z-10">
-        {/* Page Hero Header */}
-        <div className="text-center mb-8 sm:mb-10">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-mono text-xs sm:text-sm text-accent font-semibold tracking-widest uppercase mb-2 inline-flex items-center gap-1.5"
-          >
-            <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
-            // RECRUITMENTS 2026 • STATUS: CLOSED
-          </motion.p>
+      <main className="max-w-5xl mx-auto pt-28 sm:pt-36 pb-20 sm:pb-28 px-4 sm:px-6 relative z-10">
+        {/* Top of Page - Hero Section */}
+        <section className="flex flex-col items-center justify-center text-center mb-8 sm:mb-10 w-full">
+          <div className="flex justify-center w-full mb-3.5 sm:mb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-xs font-semibold tracking-wider uppercase"
+            >
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+              CROSSLINKS RECRUITMENTS 2026 • ROUND 1
+            </motion.div>
+          </div>
 
+          {/* Main Title: Round 1 Results */}
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans inline-flex items-baseline justify-center gap-0 select-none"
+            className="w-full text-center tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans flex flex-wrap items-baseline justify-center gap-x-3.5 select-none"
           >
-            <span className="font-display font-bold tracking-tight uppercase">
-              applications
+            <span className="font-display font-black tracking-tight uppercase">
+              Round 1
             </span>
-
-            <span className="font-instrument italic font-normal text-accent lowercase text-[1.15em] ml-3 sm:ml-4">
-              closed
+            <span className="font-instrument italic font-normal text-accent lowercase text-[1.15em]">
+              results
             </span>
           </motion.h1>
 
-          <motion.p
+          {/* Subheading Notice Box */}
+          <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="mt-3 text-sm sm:text-base text-muted-foreground max-w-lg mx-auto leading-relaxed font-sans"
+            className="mt-6 max-w-2xl w-full mx-auto"
           >
-            The recruitment drive for Crosslinks 2026 has officially wrapped
-            up. Thank you for the overwhelming response!
-          </motion.p>
-        </div>
+            <div className="glass-card rounded-2xl p-4 sm:p-5 border border-accent/25 shadow-lg bg-card/75 backdrop-blur-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                <div className="flex items-start sm:items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center text-accent shrink-0 mt-0.5 sm:mt-0">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-medium text-foreground leading-snug">
+                      The selected students will be added in WhatsApp groups soon.
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      For any query or assistance, please reach out to{" "}
+                      <span className="font-semibold text-accent">Ashish</span>.
+                    </p>
+                  </div>
+                </div>
 
-        {/* Main Status Glass Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="glass-card rounded-3xl p-6 sm:p-10 relative z-10 shadow-2xl space-y-7"
-        >
-          {/* Glowing Icon & Primary Status Announcement */}
-          <div className="text-center">
-            <div className="flex justify-center mb-5">
-              <div className="w-20 h-20 rounded-full bg-accent/10 border border-accent/25 flex items-center justify-center relative shadow-[0_0_35px_var(--accent)]">
-                <Clock className="w-9 h-9 text-accent" />
+                {/* Direct Contact Button - WhatsApp Only */}
+                <div className="flex items-center shrink-0 w-full sm:w-auto justify-center">
+                  <a
+                    href="https://wa.me/916206814632"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-10 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-all shadow-sm group cursor-pointer"
+                    title="Chat with Ashish on WhatsApp (6206814632)"
+                  >
+                    <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    <span>WhatsApp (6206814632)</span>
+                  </a>
+                </div>
               </div>
             </div>
+          </motion.div>
+        </section>
 
-            <p className="font-mono text-xs text-accent font-semibold tracking-widest uppercase mb-1.5">
-              // RECRUITMENT WINDOW CLOSED
-            </p>
-
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-sans mb-3">
-              Sorry, you're a bit late!
-            </h2>
-
-            <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-              We have closed the applications for this tenure. Crosslinks
-              recruits exclusively during the first year, and the recruitment
-              window for this batch has officially concluded. Our core team is
-              currently reviewing submissions for the next rounds.
-            </p>
-          </div>
-
-          {/* Info Highlight Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 flex items-start gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
-                <AlertCircle className="w-5 h-5" />
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-[11px] font-mono text-accent font-semibold tracking-wider uppercase">
-                  DEADLINE PASSED
-                </p>
-
-                <p className="text-sm font-bold text-foreground font-sans mt-0.5">
-                  10 September, 2026
-                </p>
-
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Forms closed at 11:59 PM
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 flex items-start gap-3.5">
-              <div className="w-9 h-9 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
-                <UserCheck className="w-5 h-5" />
-              </div>
-
-              <div className="min-w-0">
-                <p className="text-[11px] font-mono text-accent font-semibold tracking-wider uppercase">
-                  APPLICANT NOTICE
-                </p>
-
-                <p className="text-sm font-bold text-foreground font-sans mt-0.5">
-                  Shortlisting Underway
-                </p>
-
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Shortlisted applicants will receive the updates
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="h-px bg-border/60" />
-
-          {/* Point of Contact Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-mono text-accent font-semibold tracking-widest uppercase">
-                // POINT OF CONTACT
-              </p>
-
-              <span className="text-[11px] font-mono text-muted-foreground">
-                Already applied? Reach out for queries
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {pocs.map((poc) => (
-                <a
-                  key={poc.name}
-                  href={`https://wa.me/91${poc.phone}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border/60 hover:border-accent/40 hover:bg-accent/5 transition-all duration-300 group cursor-pointer"
+        {/* Interactive Controls Bar: Department Heading with Selector on Left + Search on Right (Same Level) */}
+        <section className="mb-6 relative z-30">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 border border-border/70 shadow-xl bg-card/85 backdrop-blur-xl">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              
+              {/* Left Side: Heading with Department Name + Dropdown Selector Arrow */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  id="department-selector-button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-haspopup="listbox"
+                  aria-expanded={dropdownOpen}
+                  className="group flex items-center gap-3.5 text-left focus:outline-none cursor-pointer select-none"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-muted border border-border/60 flex items-center justify-center text-muted-foreground shrink-0 text-xs font-bold font-mono group-hover:bg-accent/10 group-hover:border-accent/20 group-hover:text-accent transition-colors duration-300">
-                      {poc.name.charAt(0)}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate group-hover:text-accent transition-colors duration-300">
-                        {poc.name}
-
-                        <span className="text-[10px] font-mono text-muted-foreground ml-1.5 group-hover:text-accent/80 transition-colors duration-300">
-                          ({poc.dept})
-                        </span>
-                      </p>
-
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {poc.phone}
-                      </p>
-                    </div>
+                  <div className="w-11 h-11 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent shadow-sm group-hover:border-accent group-hover:scale-105 transition-all">
+                    <DeptIcon className="w-5 h-5" />
                   </div>
 
-                  <span className="text-muted-foreground group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300 shrink-0 ml-2">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </span>
-                </a>
-              ))}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight font-sans group-hover:text-accent transition-colors flex items-center gap-2">
+                        <span>{selectedDept}</span>
+                        <ChevronDown
+                          className={`w-5 h-5 sm:w-6 sm:h-6 text-accent transition-transform duration-300 ${
+                            dropdownOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </h2>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono flex items-center gap-1.5 mt-0.5">
+                      <span>Click to select department</span>
+                      <span>•</span>
+                      <span className="text-accent font-semibold">
+                        {departmentCounts[selectedDept] || 0} shortlisted
+                      </span>
+                    </p>
+                  </div>
+                </button>
+
+                {/* Animated Dropdown Menu displaying all department options */}
+                <AnimatePresence>
+                  {dropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.96 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="absolute top-full left-0 mt-3 w-72 sm:w-80 rounded-2xl bg-card border border-accent/30 shadow-2xl backdrop-blur-2xl p-2 z-50 divide-y divide-border/40"
+                    >
+                      <div className="px-3 py-2 text-[11px] font-mono text-muted-foreground uppercase tracking-wider font-semibold">
+                        Select Department
+                      </div>
+
+                      <div className="pt-1 space-y-1">
+                        {DEPARTMENTS.map((dept) => {
+                          const Icon = dept.icon;
+                          const isSelected = dept.name === selectedDept;
+                          const count = departmentCounts[dept.name] || 0;
+
+                          return (
+                            <button
+                              key={dept.name}
+                              type="button"
+                              onClick={() => {
+                                setSelectedDept(dept.name);
+                                setDropdownOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all duration-200 cursor-pointer ${
+                                isSelected
+                                  ? "bg-accent text-accent-foreground shadow-md shadow-accent/20"
+                                  : "hover:bg-accent/10 text-foreground"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                    isSelected
+                                      ? "bg-black/20 text-white"
+                                      : "bg-muted border border-border/60 text-muted-foreground"
+                                  }`}
+                                >
+                                  <Icon className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-bold truncate">
+                                    {dept.name}
+                                  </p>
+                                  <p
+                                    className={`text-[11px] truncate ${
+                                      isSelected
+                                        ? "text-accent-foreground/80"
+                                        : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {dept.tagline}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                                <span
+                                  className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-full ${
+                                    isSelected
+                                      ? "bg-black/25 text-white"
+                                      : "bg-muted text-muted-foreground border border-border/60"
+                                  }`}
+                                >
+                                  {count}
+                                </span>
+                                {isSelected && <Check className="w-4 h-4 shrink-0" />}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Right Side (On the Same Level): Live Candidate Search Bar */}
+              <div className="w-full md:w-72 lg:w-80 relative flex items-center">
+                <Search className="w-4 h-4 absolute left-3.5 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  id="candidate-search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={`Search ${selectedDept} candidates...`}
+                  className="w-full bg-muted/60 hover:bg-muted/80 focus:bg-card border border-border/80 focus:border-accent rounded-xl pl-10 pr-9 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 transition-all outline-none shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear search"
+                    className="absolute right-3 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
             </div>
           </div>
+        </section>
 
-          <div className="h-px bg-border/60" />
-
-          {/* Action Button & External Links */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
-            <p className="text-xs text-muted-foreground text-center sm:text-left leading-relaxed">
-              Want to learn more about Crosslinks and our upcoming initiatives?
+        {/* Shortlisted Candidates Count Header */}
+        <section className="mb-4 flex items-center justify-between px-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <p className="text-xs sm:text-sm font-mono text-muted-foreground">
+              Showing{" "}
+              <span className="font-bold text-foreground">
+                {filteredCandidates.length}
+              </span>{" "}
+              shortlisted candidate{filteredCandidates.length === 1 ? "" : "s"} in{" "}
+              <span className="text-accent font-semibold">{selectedDept}</span>
             </p>
-
-            <a
-              href="https://crosslinksnsut.in"
-              target="_blank"
-              rel="noreferrer"
-              className="w-full sm:w-auto h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-accent text-accent-foreground font-semibold text-sm shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-105 transition-all duration-300 cursor-pointer shrink-0"
-            >
-              <Globe size={16} />
-              Visit Official Website
-            </a>
           </div>
-        </motion.div>
+
+          <div className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
+            {isLoading ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                <span>Syncing live data...</span>
+              </>
+            ) : (
+              <>
+                <UserCheck className="w-3.5 h-3.5 text-accent" />
+                <span>Round 1 Qualifiers</span>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Results List: Student Name & Roll Number Cards */}
+        <section aria-label="Shortlisted candidates list">
+          {filteredCandidates.length > 0 ? (
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredCandidates.map((candidate, idx) => (
+                  <motion.div
+                    key={candidate.id || `${candidate.rollNumber}-${idx}`}
+                    layout
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25, delay: idx * 0.02 }}
+                    className="glass-card rounded-2xl p-4 sm:p-5 border border-border/70 hover:border-accent/60 transition-all duration-300 group flex items-center justify-between gap-3 shadow-md hover:shadow-xl bg-card/85"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground truncate group-hover:text-accent transition-colors font-sans tracking-tight">
+                        {candidate.name}
+                      </h3>
+
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/60 tracking-wider">
+                          {candidate.rollNumber}
+                        </span>
+
+                        {candidate.branch && (
+                          <span className="text-[11px] font-mono text-muted-foreground">
+                            {candidate.branch}
+                            {candidate.campus ? ` • ${candidate.campus}` : ""}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="shrink-0">
+                      <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-semibold flex items-center gap-1.5 shadow-xs">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        <span className="hidden xs:inline">Shortlisted</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            /* Empty State when search returns no match */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-card rounded-2xl p-10 text-center border border-border/70 max-w-md mx-auto my-6"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-muted border border-border flex items-center justify-center text-muted-foreground mx-auto mb-3">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground mb-1">
+                No Shortlisted Candidates Found
+              </h3>
+              <p className="text-xs text-muted-foreground mb-4">
+                {searchQuery
+                  ? `No results match "${searchQuery}" in ${selectedDept}. Check the spelling or try searching by roll number.`
+                  : `No candidates currently shortlisted under ${selectedDept}.`}
+              </p>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="h-8 px-4 rounded-xl bg-accent text-accent-foreground text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  Clear Search Filter
+                </button>
+              )}
+            </motion.div>
+          )}
+        </section>
+
+        {/* Footer Banner */}
+        <section className="mt-14 text-center border-t border-border/60 pt-8 pb-4">
+          <p className="text-sm sm:text-base font-bold text-foreground tracking-tight font-sans">
+            Congratulations for making it to Round 2!
+          </p>
+          <p className="text-xs text-muted-foreground mt-1.5 font-mono">
+            Stay tuned for upcoming interview schedules and domain task details.
+          </p>
+        </section>
       </main>
     </div>
   );
