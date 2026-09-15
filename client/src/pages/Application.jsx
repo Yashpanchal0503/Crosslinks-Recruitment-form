@@ -48,65 +48,26 @@ const DEPARTMENTS = [
   },
 ];
 
-// Curated default shortlisted students ensuring instant preview even if backend is offline
-const DEFAULT_SHORTLISTED_DATA = [
-  // Tech
-  { id: "t1", name: "Aryan Sharma", rollNumber: "2026COE1024", department: "Tech", branch: "COE", campus: "Main", status: "shortlisted" },
-  { id: "t2", name: "Sneha Roy", rollNumber: "2026CSAI1205", department: "Tech", branch: "CSAI", campus: "Main", status: "shortlisted" },
-  { id: "t3", name: "Harsh Vardhan", rollNumber: "2026IT3042", department: "Tech", branch: "IT", campus: "Main", status: "shortlisted" },
-  { id: "t4", name: "Devansh Gupta", rollNumber: "2026MAC2114", department: "Tech", branch: "MAC", campus: "Main", status: "shortlisted" },
-  { id: "t5", name: "Ananya Singh", rollNumber: "2026ECE4012", department: "Tech", branch: "ECE", campus: "East", status: "shortlisted" },
-  { id: "t6", name: "Rishi Kumar", rollNumber: "2026CSDS1099", department: "Tech", branch: "CSDS", campus: "Main", status: "shortlisted" },
-  { id: "t7", name: "Tanvi Saxena", rollNumber: "2026ITNS2088", department: "Tech", branch: "ITNS", campus: "Main", status: "shortlisted" },
-  { id: "t8", name: "Yashvardhan Jain", rollNumber: "2026COE2450", department: "Tech", branch: "COE", campus: "Main", status: "shortlisted" },
 
-  // Graphic Design
-  { id: "gd1", name: "Riya Verma", rollNumber: "2026DES1008", department: "Graphic Design", branch: "Design", campus: "Main", status: "shortlisted" },
-  { id: "gd2", name: "Tanmay Jain", rollNumber: "2026ICE2230", department: "Graphic Design", branch: "ICE", campus: "Main", status: "shortlisted" },
-  { id: "gd3", name: "Ishaan Malik", rollNumber: "2026EE1092", department: "Graphic Design", branch: "EE", campus: "West", status: "shortlisted" },
-  { id: "gd4", name: "Mehak Arora", rollNumber: "2026COE3301", department: "Graphic Design", branch: "COE", campus: "Main", status: "shortlisted" },
-  { id: "gd5", name: "Raghav Goel", rollNumber: "2026ME1442", department: "Graphic Design", branch: "ME", campus: "Main", status: "shortlisted" },
-  { id: "gd6", name: "Khushi Chawla", rollNumber: "2026CSAI3110", department: "Graphic Design", branch: "CSAI", campus: "Main", status: "shortlisted" },
-
-  // Photography
-  { id: "p1", name: "Siddharth Kapoor", rollNumber: "2026ME1540", department: "Photography", branch: "ME", campus: "Main", status: "shortlisted" },
-  { id: "p2", name: "Priya Nair", rollNumber: "2026BT2100", department: "Photography", branch: "BT", campus: "Main", status: "shortlisted" },
-  { id: "p3", name: "Rohan Dixit", rollNumber: "2026ECE1980", department: "Photography", branch: "ECE", campus: "East", status: "shortlisted" },
-  { id: "p4", name: "Kritika Saini", rollNumber: "2026IT2550", department: "Photography", branch: "IT", campus: "Main", status: "shortlisted" },
-  { id: "p5", name: "Aman Singhal", rollNumber: "2026ICE1402", department: "Photography", branch: "ICE", campus: "West", status: "shortlisted" },
-
-  // Content
-  { id: "c1", name: "Aditi Joshi", rollNumber: "2026CSAI2401", department: "Content", branch: "CSAI", campus: "Main", status: "shortlisted" },
-  { id: "c2", name: "Varun Malhotra", rollNumber: "2026IT1120", department: "Content", branch: "IT", campus: "Main", status: "shortlisted" },
-  { id: "c3", name: "Shreya Tiwari", rollNumber: "2026CE2033", department: "Content", branch: "CE", campus: "Main", status: "shortlisted" },
-  { id: "c4", name: "Kabir Sengupta", rollNumber: "2026ECE3409", department: "Content", branch: "ECE", campus: "East", status: "shortlisted" },
-  { id: "c5", name: "Nandini Aggarwal", rollNumber: "2026MAC1102", department: "Content", branch: "MAC", campus: "Main", status: "shortlisted" },
-
-  // Video Editing
-  { id: "ve1", name: "Kshitij Kumar", rollNumber: "2026COE4420", department: "Video Editing", branch: "COE", campus: "Main", status: "shortlisted" },
-  { id: "ve2", name: "Armaan Ali", rollNumber: "2026EE3210", department: "Video Editing", branch: "EE", campus: "West", status: "shortlisted" },
-  { id: "ve3", name: "Pranav Bhatia", rollNumber: "2026ICE1088", department: "Video Editing", branch: "ICE", campus: "Main", status: "shortlisted" },
-  { id: "ve4", name: "Dhruv Mittal", rollNumber: "2026CSDS2190", department: "Video Editing", branch: "CSDS", campus: "Main", status: "shortlisted" },
-  { id: "ve5", name: "Ananya Pandey", rollNumber: "2026IT3312", department: "Video Editing", branch: "IT", campus: "Main", status: "shortlisted" },
-];
 
 const Application = () => {
   const [selectedDept, setSelectedDept] = useState("Content");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [dbCandidates, setDbCandidates] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  // Fetch shortlisted candidates from backend API if available
+  // Fetch shortlisted candidates from backend API
   useEffect(() => {
     let isMounted = true;
     const fetchResults = async () => {
       setIsLoading(true);
       try {
         const response = await getShortlistedCandidates();
-        if (response?.data?.candidates && response.data.candidates.length > 0 && isMounted) {
-          const formatted = response.data.candidates.map((c) => ({
+        if (isMounted) {
+          const candidates = response?.data?.candidates || [];
+          const formatted = candidates.map((c) => ({
             id: c._id || c.id,
             name: c.personalDetails?.name || c.name || "Applicant",
             rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
@@ -118,8 +79,8 @@ const Application = () => {
           setDbCandidates(formatted);
         }
       } catch (err) {
-        // Backend offline or empty DB: fallback data will automatically be used
-        console.warn("Backend API unavailable or no live results yet; using verified shortlists", err);
+        console.warn("Backend API unavailable", err);
+        if (isMounted) setDbCandidates([]);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -142,9 +103,9 @@ const Application = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Unified candidate pool: use live DB data if present, otherwise default shortlists
+  // Candidate pool from backend API only
   const allCandidates = useMemo(() => {
-    return dbCandidates.length > 0 ? dbCandidates : DEFAULT_SHORTLISTED_DATA;
+    return dbCandidates;
   }, [dbCandidates]);
 
   // Current active department metadata
@@ -435,7 +396,28 @@ const Application = () => {
 
         {/* Results List: Student Name & Roll Number Cards */}
         <section aria-label="Shortlisted candidates list">
-          {filteredCandidates.length > 0 ? (
+          {isLoading ? (
+            /* Shimmer Skeleton UI while data loads */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={`shimmer-${idx}`}
+                  className="glass-card rounded-2xl p-4 sm:p-5 border border-border/70 flex items-center justify-between gap-3 shadow-md bg-card/85 animate-pulse"
+                >
+                  <div className="min-w-0 pr-2 flex-1">
+                    <div className="h-5 w-40 bg-muted/80 rounded-lg mb-2.5" />
+                    <div className="flex items-center gap-2">
+                      <div className="h-4 w-28 bg-muted/60 rounded-md" />
+                      <div className="h-3 w-16 bg-muted/40 rounded-md" />
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <div className="h-7 w-20 bg-muted/50 rounded-full" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredCandidates.length > 0 ? (
             <motion.div
               layout
               className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"
