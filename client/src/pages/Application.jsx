@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
-import { getShortlistedCandidates } from "../services/api";
+import constantData from "../constant";
 
 const DEPARTMENTS = [
   {
@@ -48,22 +48,18 @@ const DEPARTMENTS = [
   },
 ];
 
-
-
 const Application = () => {
   const [selectedDept, setSelectedDept] = useState("Content");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [dbCandidates, setDbCandidates] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
 
   // Debounce search query by 300ms (0.3s)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 800);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -72,40 +68,6 @@ const Application = () => {
     setSearchQuery("");
     setDebouncedSearchQuery("");
   };
-
-  // Fetch shortlisted candidates from backend API
-  useEffect(() => {
-    let isMounted = true;
-    const fetchResults = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getShortlistedCandidates();
-        if (isMounted) {
-          const candidates = response?.data?.candidates || [];
-          const formatted = candidates.map((c) => ({
-            id: c._id || c.id,
-            name: c.personalDetails?.name || c.name || "Applicant",
-            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
-            department: c.department,
-            branch: c.personalDetails?.branch || c.branch || "",
-            campus: c.personalDetails?.campus || c.campus || "",
-            status: c.status || "shortlisted",
-          }));
-          setDbCandidates(formatted);
-        }
-      } catch (err) {
-        console.warn("Backend API unavailable", err);
-        if (isMounted) setDbCandidates([]);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
-    fetchResults();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -118,10 +80,18 @@ const Application = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Candidate pool from backend API only
+  // Candidate pool from constant.js
   const allCandidates = useMemo(() => {
-    return dbCandidates;
-  }, [dbCandidates]);
+    return constantData.map((c, idx) => ({
+      id: c._id?.$oid || c._id || `cand-${idx}`,
+      name: c.personalDetails?.name || c.name || "Applicant",
+      rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+      department: c.department,
+      branch: c.personalDetails?.branch || c.branch || "",
+      campus: c.personalDetails?.campus || c.campus || "",
+      status: c.status || "shortlisted",
+    }));
+  }, []);
 
   // Current active department metadata
   const currentDeptMeta = useMemo(() => {
@@ -395,44 +365,14 @@ const Application = () => {
           </div>
 
           <div className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
-            {isLoading ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                <span>Syncing live data...</span>
-              </>
-            ) : (
-              <>
-                <UserCheck className="w-3.5 h-3.5 text-accent" />
-                <span>Round 1 Qualifiers</span>
-              </>
-            )}
+            <UserCheck className="w-3.5 h-3.5 text-accent" />
+            <span>Round 1 Qualifiers</span>
           </div>
         </section>
 
         {/* Results List: Student Name & Roll Number Cards */}
         <section aria-label="Shortlisted candidates list">
-          {isLoading ? (
-            /* Shimmer Skeleton UI while data loads */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <div
-                  key={`shimmer-${idx}`}
-                  className="glass-card rounded-2xl p-4 sm:p-5 border border-border/70 flex items-center justify-between gap-3 shadow-md bg-card/85 animate-pulse"
-                >
-                  <div className="min-w-0 pr-2 flex-1">
-                    <div className="h-5 w-40 bg-muted/80 rounded-lg mb-2.5" />
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-28 bg-muted/60 rounded-md" />
-                      <div className="h-3 w-16 bg-muted/40 rounded-md" />
-                    </div>
-                  </div>
-                  <div className="shrink-0">
-                    <div className="h-7 w-20 bg-muted/50 rounded-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filteredCandidates.length > 0 ? (
+          {filteredCandidates.length > 0 ? (
             <motion.div
               layout
               className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"
