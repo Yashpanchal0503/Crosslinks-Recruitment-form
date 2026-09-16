@@ -1540,6 +1540,16 @@ const data=[{
 },
 {
   "_id": {
+    "$oid": "6a9d5248e00e178ef250ed88"
+  },
+  "personalDetails": {
+    "name": "Anukriti Kumar",
+    "rollNumber": "2026UIC3529"
+  },
+  "department": "Graphic Design"
+},
+{
+  "_id": {
     "$oid": "6a8b37d802bb62f6b383462d"
   },
   "personalDetails": {
