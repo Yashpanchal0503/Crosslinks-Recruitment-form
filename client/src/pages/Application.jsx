@@ -54,9 +54,24 @@ const Application = () => {
   const [selectedDept, setSelectedDept] = useState("Content");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [dbCandidates, setDbCandidates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
+
+  // Debounce search query by 300ms (0.3s)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setDebouncedSearchQuery("");
+  };
 
   // Fetch shortlisted candidates from backend API
   useEffect(() => {
@@ -124,9 +139,9 @@ const Application = () => {
     return counts;
   }, [allCandidates]);
 
-  // Candidates filtered by selected department and search query
+  // Candidates filtered by selected department and debounced search query (0.3s delay)
   const filteredCandidates = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = debouncedSearchQuery.trim().toLowerCase();
     return allCandidates
       .filter((c) => c.department === selectedDept)
       .filter((c) => {
@@ -135,7 +150,7 @@ const Application = () => {
         const rollMatch = c.rollNumber?.toLowerCase().includes(query);
         return nameMatch || rollMatch;
       });
-  }, [allCandidates, selectedDept, searchQuery]);
+  }, [allCandidates, selectedDept, debouncedSearchQuery]);
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden transition-colors duration-300 font-sans">
@@ -352,7 +367,7 @@ const Application = () => {
                 {searchQuery && (
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={handleClearSearch}
                     aria-label="Clear search"
                     className="absolute right-3 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                   >
@@ -484,7 +499,7 @@ const Application = () => {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
+                  onClick={handleClearSearch}
                   className="h-8 px-4 rounded-xl bg-accent text-accent-foreground text-xs font-semibold cursor-pointer hover:opacity-90 transition-opacity"
                 >
                   Clear Search Filter
