@@ -63,7 +63,7 @@ const Application = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-    }, 300);
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
