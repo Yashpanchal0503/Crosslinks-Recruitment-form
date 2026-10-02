@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,7 +20,8 @@ import {
   Camera,
   Folder,
   Code2,
-  Globe
+  Globe,
+  Layers
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
@@ -34,7 +35,7 @@ const DEPARTMENTS = [
     name: "Graphic Design",
     icon: Palette,
     tagline: "UI/UX, Branding & Visual Art",
-    description: "NSUT Wrapped Cover Redesign (Monochrome Still)",
+    title: "NSUT Wrapped Cover Redesign (Monochrome Still)",
   },
   {
     id: "Tech",
@@ -42,7 +43,7 @@ const DEPARTMENTS = [
     name: "Tech",
     icon: Cpu,
     tagline: "Web, App & Software Development",
-    description: "NSUT Community Platform",
+    title: "NSUT Connect (Community Platform)",
   },
   {
     id: "Video Editing",
@@ -50,7 +51,7 @@ const DEPARTMENTS = [
     name: "Video Editing",
     icon: Video,
     tagline: "Trailers, Motion Graphics & Reels",
-    description: "Sports Meet Reel Edit",
+    title: "Sports Meet Reel Edit",
   },
 ];
 
@@ -278,12 +279,12 @@ const Round2 = () => {
             className="mt-4 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-sans"
           >
             {step === 1
-              ? "Enter your details to verify your Round 1 shortlist status and unlock your department assignment."
-              : "Read the task instructions carefully and submit your work link below."}
+              ? "Read the department task briefs below, verify your Round 1 shortlist status, and proceed to submit your work."
+              : "Enter and submit your project links below to complete your Round 2 submission."}
           </motion.p>
         </section>
 
-        {/* Step Progress Stepper (Pill style matching Round 1 theme) - ABOVE POC CARD */}
+        {/* Step Progress Stepper */}
         <div className="mb-8 flex items-center justify-center gap-3 select-none">
           <div
             className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full border transition-all text-xs sm:text-sm font-mono tracking-tight ${
@@ -301,7 +302,7 @@ const Round2 = () => {
             >
               1
             </span>
-            <span>Verify Eligibility</span>
+            <span>Task Briefs & Verification</span>
           </div>
 
           <div className="w-8 sm:w-12 h-px bg-border/60" />
@@ -322,7 +323,7 @@ const Round2 = () => {
             >
               2
             </span>
-            <span>Task Brief & Submit</span>
+            <span>Submit Links</span>
           </div>
         </div>
 
@@ -413,182 +414,323 @@ const Round2 = () => {
           </div>
         </motion.div>
 
-        {/* Main Content Glass Card */}
+        {/* PAGE 1: TASK BRIEFS & VERIFICATION */}
         <AnimatePresence mode="wait">
           {step === 1 ? (
-            /* STEP 1: Verification Form */
             <motion.div
-              key="step-1"
-              initial={{ opacity: 0, scale: 0.97, y: 15 }}
+              key="page-1"
+              initial={{ opacity: 0, scale: 0.98, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97, y: -15 }}
+              exit={{ opacity: 0, scale: 0.98, y: -15 }}
               transition={{ duration: 0.3 }}
-              className="glass-card rounded-3xl p-6 sm:p-10 border border-border/70 shadow-2xl relative z-10 bg-card/85 backdrop-blur-xl"
+              className="space-y-8"
             >
-              <form onSubmit={handleValidateAndProceed} className="space-y-6">
+              {/* SECTION: ALL DEPARTMENT TASK BRIEFS */}
+              <div className="glass-card rounded-3xl p-6 sm:p-10 border border-border/70 shadow-2xl bg-card/85 backdrop-blur-xl space-y-6">
                 <div>
                   <p className="font-mono text-xs sm:text-sm text-accent font-semibold tracking-widest uppercase mb-1">
-                    // STEP 1: APPLICANT DETAILS
+                    // ROUND 2 TASK ASSIGNMENTS
                   </p>
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-sans tracking-tight">
-                    Shortlist Verification
+                    Department Tasks & Guidelines
                   </h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    Select any department below to view its complete problem statement and downloadable assets.
+                  </p>
                 </div>
 
-                {/* Global Error Banner */}
-                {errors.verification && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 rounded-2xl bg-destructive/10 border border-destructive/30 text-destructive flex items-start gap-3 text-sm sm:text-base leading-relaxed"
-                  >
-                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="font-semibold mb-0.5">Verification Failed</p>
-                      <p className="opacity-90">{errors.verification}</p>
-                      <div className="mt-2">
-                        <Link
-                          to="/"
-                          className="inline-flex items-center gap-1 font-mono text-xs sm:text-sm underline hover:opacity-80 transition-opacity"
+                {/* Department Selector Tabs */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  {DEPARTMENTS.map((dept) => {
+                    const Icon = dept.icon;
+                    const isSelected = selectedDept === dept.id;
+
+                    return (
+                      <button
+                        key={dept.id}
+                        type="button"
+                        onClick={() => setSelectedDept(dept.id)}
+                        className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer ${
+                          isSelected
+                            ? "bg-accent/15 border-accent shadow-md shadow-accent/15 ring-1 ring-accent"
+                            : "bg-muted/40 border-border/70 hover:border-accent/40 hover:bg-muted/70"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                              isSelected
+                                ? "bg-accent text-accent-foreground"
+                                : "bg-muted border border-border/60 text-muted-foreground"
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </div>
+
+                          {isSelected && <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />}
+                        </div>
+
+                        <div>
+                          <p className="text-base font-bold text-foreground font-sans">{dept.shortName}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                            {dept.tagline}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Active Department Detailed Task Card */}
+                <div className="p-6 sm:p-7 rounded-2xl bg-muted/40 border border-border/70 space-y-4">
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3.5">
+                    <div className="flex items-center gap-2 text-accent font-mono text-xs sm:text-sm font-bold uppercase tracking-wider">
+                      <FileText className="w-4 h-4" />
+                      <span>{selectedDept} Task Brief</span>
+                    </div>
+                    <span className="text-[11px] font-mono font-semibold px-3 py-1 rounded-full bg-accent/10 border border-accent/25 text-accent">
+                      Active Selection
+                    </span>
+                  </div>
+
+                  {/* 1. Graphic Design Task Statement */}
+                  {normalizeDept(selectedDept) === "Graphic Design" && (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
+                          NSUT Wrapped Cover Redesign (Monochrome Still)
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-2">
+                          Redesign the cover of our popular <strong>"NSUT Wrapped"</strong> series as a static, monochrome image. The previous cover was animated, so translate its key moments into a single still composition. Keep every element from the original, including texts like <span className="font-semibold text-foreground">'it's that time of the year'</span>, <strong>Netaji Subhas Palace</strong>, and other unique elements that define the design.
+                        </p>
+                      </div>
+
+                      {/* Assets & Resources Grid */}
+                      <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a
+                          href="https://drive.google.com/file/d/139KNSDVUtT9jp96UVxjLfvk5udS5_oTZ/view?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer"
                         >
-                          View Round 1 Shortlist Results <ExternalLink className="w-3.5 h-3.5" />
-                        </Link>
+                          <div className="flex items-center gap-2.5 truncate">
+                            <Folder className="w-4.5 h-4.5 text-accent shrink-0" />
+                            <span className="truncate">Crosslinks Logo (Google Drive)</span>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
+                        </a>
+
+                        <a
+                          href="https://www.instagram.com/p/DSr8oWuk5As/?img_index=1"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <Camera className="w-4.5 h-4.5 text-accent shrink-0" />
+                            <span className="truncate">Reference Instagram Post</span>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
+                        </a>
                       </div>
                     </div>
-                  </motion.div>
-                )}
+                  )}
 
-                {/* Name Input */}
-                <div>
-                  <label htmlFor="name-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
-                    <User className="w-4 h-4 text-accent" />
-                    Full Name
-                  </label>
-                  <input
-                    id="name-input"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Yash Panchal"
-                    className="input-field py-3 sm:py-3.5 text-sm sm:text-base"
-                  />
-                  {errors.name && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.name}</p>}
-                </div>
+                  {/* 2. Tech Task Statement */}
+                  {normalizeDept(selectedDept) === "Tech" && (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
+                          NSUT Connect (Community Platform)
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-2">
+                          Build <strong>NSUT Connect</strong> — one place for NSUT students to discuss, get announcements, and access timetables.
+                        </p>
+                      </div>
 
-                {/* Roll Number Input */}
-                <div>
-                  <label htmlFor="roll-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
-                    <Hash className="w-4 h-4 text-accent" />
-                    Roll Number 
-                  </label>
-                  <input
-                    id="roll-input"
-                    type="text"
-                    value={rollNumber}
-                    onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
-                    placeholder="e.g. 2026UIN3359"
-                    className="input-field py-3 sm:py-3.5 text-sm sm:text-base uppercase font-mono tracking-wider"
-                  />
-                  {errors.rollNumber && (
-                    <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.rollNumber}</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <div className="p-4 rounded-xl bg-card border border-border/80 text-xs sm:text-sm space-y-1.5">
+                          <p className="font-bold font-mono text-accent flex items-center gap-1.5">
+                            <span>🖥️</span> Frontend Track
+                          </p>
+                          <p className="text-muted-foreground text-xs leading-relaxed">
+                            Build all pages in React with dummy data (login, feed, discussions, announcements, timetable, profile).
+                          </p>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-card border border-border/80 text-xs sm:text-sm space-y-1.5">
+                          <p className="font-bold font-mono text-accent flex items-center gap-1.5">
+                            <span>⚡</span> Full-stack Track
+                          </p>
+                          <p className="text-muted-foreground text-xs leading-relaxed">
+                            Google login for <code className="text-accent font-semibold">@nsut.ac.in</code> accounts only, roles (student / admin), and APIs for all features.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-card border border-border/80 text-xs sm:text-sm text-muted-foreground font-mono">
+                        📱 <span className="font-bold text-accent">Mobile App Track:</span> Mobile app with the same features, plus notifications and an offline timetable.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. Video Editing Task Statement */}
+                  {normalizeDept(selectedDept) === "Video Editing" && (
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
+                          Sports Meet Reel Edit
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-2">
+                          You’ll be provided with raw clips from the Sports Meet. Your task is to create a sports reel using the given footage, edited in your own style and creative direction. Feel free to experiment with pacing, music, transitions, effects, colour grading, and storytelling.
+                        </p>
+                      </div>
+
+                      {/* Raw Clips Drive Link Button */}
+                      <div className="pt-1">
+                        <a
+                          href="https://drive.google.com/drive/folders/1QfydxMxZpkfo2HNSCoIcW5pbdrtL593O"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer max-w-md"
+                        >
+                          <div className="flex items-center gap-2.5 truncate">
+                            <Folder className="w-4.5 h-4.5 text-accent shrink-0" />
+                            <span className="truncate">Raw Clips: Sports Meet (Google Drive)</span>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
+                        </a>
+                      </div>
+
+                      <div className="p-3.5 rounded-xl bg-card border border-border/80 text-xs sm:text-sm text-muted-foreground font-mono">
+                        📁 Once completed, upload your final edit to Google Drive and ensure <strong>"Anyone with the link"</strong> has Viewer access. Submit the link in Step 2.
+                      </div>
+                    </div>
                   )}
                 </div>
+              </div>
 
-                {/* Phone Number Input */}
-                <div>
-                  <label htmlFor="phone-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
-                    <Phone className="w-4 h-4 text-accent" />
-                    Phone Number (WhatsApp) 
-                  </label>
-                  <input
-                    id="phone-input"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. 9996896803"
-                    className="input-field py-3 sm:py-3.5 text-sm sm:text-base font-mono"
-                  />
-                  {errors.phone && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.phone}</p>}
-                </div>
-
-                {/* Department Selection Cards */}
-                <div>
-                  <label className="input-label flex items-center gap-1.5 mb-2.5 text-xs sm:text-sm">
-                    <Sparkles className="w-4 h-4 text-accent" />
-                    Select Department 
-                  </label>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    {DEPARTMENTS.map((dept) => {
-                      const Icon = dept.icon;
-                      const isSelected = selectedDept === dept.id;
-
-                      return (
-                        <button
-                          key={dept.id}
-                          type="button"
-                          onClick={() => setSelectedDept(dept.id)}
-                          className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between gap-3 cursor-pointer ${
-                            isSelected
-                              ? "bg-accent/15 border-accent shadow-md shadow-accent/15 ring-1 ring-accent"
-                              : "bg-muted/40 border-border/70 hover:border-accent/40 hover:bg-muted/70"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div
-                              className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                isSelected
-                                  ? "bg-accent text-accent-foreground"
-                                  : "bg-muted border border-border/60 text-muted-foreground"
-                              }`}
-                            >
-                              <Icon className="w-5 h-5" />
-                            </div>
-
-                            {isSelected && <CheckCircle2 className="w-5 h-5 text-accent shrink-0" />}
-                          </div>
-
-                          <div>
-                            <p className="text-base font-bold text-foreground font-sans">{dept.shortName}</p>
-                            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-1">
-                              {dept.tagline}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
+              {/* SECTION: VERIFICATION FORM */}
+              <div className="glass-card rounded-3xl p-6 sm:p-10 border border-border/70 shadow-2xl bg-card/85 backdrop-blur-xl">
+                <form onSubmit={handleValidateAndProceed} className="space-y-6">
+                  <div>
+                    <p className="font-mono text-xs sm:text-sm text-accent font-semibold tracking-widest uppercase mb-1">
+                      // STEP 1: VERIFY ELIGIBILITY
+                    </p>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-sans tracking-tight">
+                      Candidate Shortlist Verification
+                    </h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                      Enter your credentials to verify your Round 1 shortlist for <strong>{selectedDept}</strong>.
+                    </p>
                   </div>
-                </div>
 
-                {/* Submit Action Button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isValidating}
-                    className="w-full h-12 sm:h-14 rounded-full bg-accent text-accent-foreground font-extrabold text-sm sm:text-base shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-                  >
-                    {isValidating ? (
-                      <>
-                        <span className="w-5 h-5 rounded-full border-2 border-accent-foreground/30 border-t-accent-foreground animate-spin" />
-                        <span>Verifying Shortlist Status...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Verify & Proceed to Task</span>
-                        <ArrowRight className="w-5 h-5" />
-                      </>
+                  {/* Global Error Banner */}
+                  {errors.verification && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-2xl bg-destructive/10 border border-destructive/30 text-destructive flex items-start gap-3 text-sm sm:text-base leading-relaxed"
+                    >
+                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-semibold mb-0.5">Verification Failed</p>
+                        <p className="opacity-90">{errors.verification}</p>
+                        <div className="mt-2">
+                          <Link
+                            to="/"
+                            className="inline-flex items-center gap-1 font-mono text-xs sm:text-sm underline hover:opacity-80 transition-opacity"
+                          >
+                            View Round 1 Shortlist Results <ExternalLink className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Name Input */}
+                  <div>
+                    <label htmlFor="name-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
+                      <User className="w-4 h-4 text-accent" />
+                      Full Name
+                    </label>
+                    <input
+                      id="name-input"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Yash Panchal"
+                      className="input-field py-3 sm:py-3.5 text-sm sm:text-base"
+                    />
+                    {errors.name && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.name}</p>}
+                  </div>
+
+                  {/* Roll Number Input */}
+                  <div>
+                    <label htmlFor="roll-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
+                      <Hash className="w-4 h-4 text-accent" />
+                      Roll Number 
+                    </label>
+                    <input
+                      id="roll-input"
+                      type="text"
+                      value={rollNumber}
+                      onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g. 2026UIN3359"
+                      className="input-field py-3 sm:py-3.5 text-sm sm:text-base uppercase font-mono tracking-wider"
+                    />
+                    {errors.rollNumber && (
+                      <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.rollNumber}</p>
                     )}
-                  </button>
-                </div>
-              </form>
+                  </div>
+
+                  {/* Phone Number Input */}
+                  <div>
+                    <label htmlFor="phone-input" className="input-label flex items-center gap-1.5 text-xs sm:text-sm">
+                      <Phone className="w-4 h-4 text-accent" />
+                      Phone Number (WhatsApp) 
+                    </label>
+                    <input
+                      id="phone-input"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. 9996896803"
+                      className="input-field py-3 sm:py-3.5 text-sm sm:text-base font-mono"
+                    />
+                    {errors.phone && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.phone}</p>}
+                  </div>
+
+                  {/* Submit Action Button */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isValidating}
+                      className="w-full h-12 sm:h-14 rounded-full bg-accent text-accent-foreground font-extrabold text-sm sm:text-base shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {isValidating ? (
+                        <>
+                          <span className="w-5 h-5 rounded-full border-2 border-accent-foreground/30 border-t-accent-foreground animate-spin" />
+                          <span>Verifying Shortlist Status...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Verify & Proceed to Submit Links</span>
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </motion.div>
           ) : (
-            /* STEP 2: Task Instructions & Submission Form */
+            /* PAGE 2: ONLY THE INPUT LINKS (G DRIVE, GITHUB, WEBSITE) */
             <motion.div
-              key="step-2"
-              initial={{ opacity: 0, scale: 0.97, y: 15 }}
+              key="page-2"
+              initial={{ opacity: 0, scale: 0.98, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97, y: -15 }}
+              exit={{ opacity: 0, scale: 0.98, y: -15 }}
               transition={{ duration: 0.3 }}
               className="glass-card rounded-3xl p-6 sm:p-10 border border-border/70 shadow-2xl relative z-10 bg-card/85 backdrop-blur-xl space-y-8"
             >
@@ -596,11 +738,14 @@ const Round2 = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
                 <div>
                   <p className="font-mono text-xs sm:text-sm text-accent font-semibold tracking-widest uppercase mb-1">
-                    // STEP 2: ROUND 2 TASK BRIEF
+                    // STEP 2: SUBMIT TASK WORK
                   </p>
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground font-sans tracking-tight flex items-center gap-2">
-                    <span>{selectedDept} Assignment</span>
+                    <span>{selectedDept} Submission</span>
                   </h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    Candidate: <strong>{verifiedCandidate?.name || name}</strong> ({verifiedCandidate?.rollNumber || rollNumber})
+                  </p>
                 </div>
 
                 {/* Verified Pill Badge */}
@@ -610,118 +755,7 @@ const Round2 = () => {
                 </div>
               </div>
 
-              {/* Department Specific Task Description & Resource Links */}
-              <div className="p-6 rounded-2xl bg-muted/40 border border-border/70 space-y-4">
-                <div className="flex items-center gap-2 text-accent font-mono text-xs sm:text-sm font-bold uppercase tracking-wider">
-                  <FileText className="w-4 h-4" />
-                  <span>Task Statement</span>
-                </div>
-
-                {/* Task Details per Department */}
-                {normalizeDept(selectedDept) === "Graphic Design" && (
-                  <div className="space-y-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
-                      NSUT Wrapped Cover Redesign (Monochrome Still)
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                      Redesign the cover of our popular <strong>"NSUT Wrapped"</strong> series as a static, monochrome image. The previous cover was animated, so translate its key moments into a single still composition. Keep every element from the original, including texts like <span className="font-semibold text-foreground">'it's that time of the year'</span>, <strong>Netaji Subhas Palace</strong>, and other unique elements that define the design.
-                    </p>
-
-                    {/* Resources Grid */}
-                    <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <a
-                        href="https://drive.google.com/file/d/139KNSDVUtT9jp96UVxjLfvk5udS5_oTZ/view?usp=sharing"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Folder className="w-4.5 h-4.5 text-accent shrink-0" />
-                          <span className="truncate">Crosslinks Logo (Drive)</span>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
-                      </a>
-
-                      <a
-                        href="https://www.instagram.com/p/DSr8oWuk5As/?img_index=1"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Camera className="w-4.5 h-4.5 text-accent shrink-0" />
-                          <span className="truncate">Reference Instagram Post</span>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {normalizeDept(selectedDept) === "Tech" && (
-                  <div className="space-y-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
-                      NSUT Connect (Community Platform)
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                      Build <strong>NSUT Connect</strong> — one place for NSUT students to discuss, get announcements, and access timetables.
-                    </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                      <div className="p-3.5 rounded-xl bg-card border border-border/80 text-xs sm:text-sm space-y-1">
-                        <p className="font-bold font-mono text-accent">🖥️ Frontend Track</p>
-                        <p className="text-muted-foreground text-xs leading-relaxed">
-                          Build all pages in React with dummy data (login, feed, discussions, announcements, timetable, profile).
-                        </p>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-card border border-border/80 text-xs sm:text-sm space-y-1">
-                        <p className="font-bold font-mono text-accent">⚡ Full-stack Track</p>
-                        <p className="text-muted-foreground text-xs leading-relaxed">
-                          Google login for <code className="text-accent font-semibold">@nsut.ac.in</code> accounts only, roles (student / admin), and APIs for all features.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-card border border-border/80 text-xs sm:text-sm text-muted-foreground font-mono">
-                      📱 <span className="font-bold font-mono text-accent">Mobile App Track</span> Mobile app with the same features, plus notifications and an offline timetable.
-                    </div>
-                  </div>
-                )}
-
-                {normalizeDept(selectedDept) === "Video Editing" && (
-                  <div className="space-y-3.5">
-                    <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
-                      Sports Meet Reel Edit
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                      You’ll be provided with raw clips from the Sports Meet. Your task is to create a sports reel using the given footage, edited in your own style and creative direction. Feel free to experiment with pacing, music, transitions, effects, colour grading, and storytelling.
-                    </p>
-
-                    {/* Raw Clips Drive Link Button */}
-                    <div className="pt-1">
-                      <a
-                        href="https://drive.google.com/drive/folders/1QfydxMxZpkfo2HNSCoIcW5pbdrtL593O"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-3.5 rounded-xl bg-card border border-border/80 hover:border-accent/50 text-foreground hover:text-accent transition-all flex items-center justify-between text-xs sm:text-sm font-semibold group cursor-pointer max-w-md"
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <Folder className="w-4.5 h-4.5 text-accent shrink-0" />
-                          <span className="truncate">Raw Clips: Sports Meet (Google Drive)</span>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-accent shrink-0" />
-                      </a>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-card border border-border/80 text-xs sm:text-sm text-muted-foreground font-mono">
-                      📁 Once completed, upload your final edit to Google Drive and ensure <strong>"Anyone with the link"</strong> has Viewer access. Submit the link below.
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Task Submission Inputs */}
+              {/* Task Submission Inputs Form */}
               <form onSubmit={handleSubmitTask} className="space-y-6">
                 {normalizeDept(selectedDept) === "Tech" ? (
                   <>
