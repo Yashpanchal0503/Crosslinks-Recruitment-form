@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -14,10 +15,12 @@ import {
   Video,
   UserCheck,
   AlertCircle,
-  Check
+  Check,
+  ArrowRight
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
+import { getShortlistedCandidates } from "../services/api";
 import constantData from "../constant";
 
 const DEPARTMENTS = [
@@ -53,7 +56,62 @@ const Application = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [dbCandidates, setDbCandidates] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
+
+  // Fetch shortlisted candidates from backend API
+  useEffect(() => {
+    let isMounted = true;
+    const fetchResults = async () => {
+      setIsLoading(true);
+      try {
+        const response = await getShortlistedCandidates();
+        if (response?.data?.candidates && response.data.candidates.length > 0 && isMounted) {
+          const formatted = response.data.candidates.map((c) => ({
+            id: c._id || c.id,
+            name: c.personalDetails?.name || c.name || "Applicant",
+            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+            department: c.department,
+            branch: c.personalDetails?.branch || c.branch || "",
+            campus: c.personalDetails?.campus || c.campus || "",
+            status: c.status || "shortlisted",
+          }));
+          setDbCandidates(formatted);
+        } else if (isMounted) {
+          setDbCandidates(constantData.map((c, idx) => ({
+            id: c._id?.$oid || c._id || `cand-${idx}`,
+            name: c.personalDetails?.name || c.name || "Applicant",
+            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+            department: c.department,
+            branch: c.personalDetails?.branch || c.branch || "",
+            campus: c.personalDetails?.campus || c.campus || "",
+            status: c.status || "shortlisted",
+          })));
+        }
+      } catch (err) {
+        console.warn("Backend API unavailable; using constant dataset fallback", err);
+        if (isMounted) {
+          setDbCandidates(constantData.map((c, idx) => ({
+            id: c._id?.$oid || c._id || `cand-${idx}`,
+            name: c.personalDetails?.name || c.name || "Applicant",
+            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+            department: c.department,
+            branch: c.personalDetails?.branch || c.branch || "",
+            campus: c.personalDetails?.campus || c.campus || "",
+            status: c.status || "shortlisted",
+          })));
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchResults();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Debounce search query by 300ms (0.3s)
   useEffect(() => {
@@ -80,18 +138,10 @@ const Application = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Candidate pool from constant.js
+  // Candidate pool from backend API (with constantData fallback)
   const allCandidates = useMemo(() => {
-    return constantData.map((c, idx) => ({
-      id: c._id?.$oid || c._id || `cand-${idx}`,
-      name: c.personalDetails?.name || c.name || "Applicant",
-      rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
-      department: c.department,
-      branch: c.personalDetails?.branch || c.branch || "",
-      campus: c.personalDetails?.campus || c.campus || "",
-      status: c.status || "shortlisted",
-    }));
-  }, []);
+    return dbCandidates;
+  }, [dbCandidates]);
 
   // Current active department metadata
   const currentDeptMeta = useMemo(() => {
@@ -175,27 +225,23 @@ const Application = () => {
                   </div>
                   <div>
                     <p className="text-sm sm:text-base font-medium text-foreground leading-snug">
-                      The selected students will be added in WhatsApp groups soon.
+                      Round 2 Tasks are now live for shortlisted candidates!
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      For any query or assistance, please reach out to{" "}
-                      <span className="font-semibold text-accent">Ashish</span>.
+                      Verify your shortlist status and access your domain assignment.
                     </p>
                   </div>
                 </div>
 
-                {/* Direct Contact Button - WhatsApp Only */}
-                <div className="flex items-center shrink-0 w-full sm:w-auto justify-center">
-                  <a
-                    href="https://wa.me/916206814632"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-10 px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs sm:text-sm font-semibold inline-flex items-center gap-2 transition-all shadow-sm group cursor-pointer"
-                    title="Chat with Ashish on WhatsApp (6206814632)"
+                {/* Direct Action Button - Round 2 */}
+                <div className="flex items-center shrink-0 w-full sm:w-auto justify-center gap-2">
+                  <Link
+                    to="/round2"
+                    className="h-10 px-5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-bold inline-flex items-center gap-2 transition-all shadow-md shadow-accent/20 hover:scale-105 group cursor-pointer"
                   >
-                    <MessageCircle className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    <span>WhatsApp (6206814632)</span>
-                  </a>
+                    <span>Go to Round 2 Tasks</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
               </div>
             </div>
