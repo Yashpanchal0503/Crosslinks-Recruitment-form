@@ -8,6 +8,7 @@ import connectDB from './config/db.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import round2Routes from './routes/round2Routes.js';
 import { getDepartments } from './controllers/applicationController.js';
 
 dotenv.config();
@@ -65,6 +66,7 @@ const adminLimiter = rateLimit({
 
 app.use('/api/applications', userLimiter, applicationRoutes);
 app.get('/api/departments', userLimiter, getDepartments);
+app.use('/api/round2', userLimiter, round2Routes);
 app.use('/api/auth', userLimiter, authRoutes);
 app.use('/api/admin', adminLimiter, adminRoutes);
 

@@ -2,16 +2,29 @@ import Application from '../models/Application.js';
 
 export const submitApplication = async (req, res) => {
   try {
-    const existing = await Application.findOne({ 
-      'personalDetails.email': req.body.personalDetails.email,
-      'department': req.body.department
+    const email = req.body.personalDetails?.email?.toLowerCase().trim();
+    const rollNumber = req.body.personalDetails?.rollNumber?.toUpperCase().trim();
+    const department = req.body.department;
+
+    const existing = await Application.findOne({
+      department,
+      $or: [
+        { 'personalDetails.email': { $regex: new RegExp(`^${email}$`, 'i') } },
+        { 'personalDetails.rollNumber': { $regex: new RegExp(`^${rollNumber}$`, 'i') } }
+      ]
     });
+
     if (existing) {
-      return res.status(400).json({ message: 'You have already submitted an application for this department.' });
+      return res.status(400).json({ 
+        message: 'An application for this department has already been submitted with this roll number or email.' 
+      });
     }
     const application = await Application.create(req.body);
     res.status(201).json(application);
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'You have already submitted an application for this department.' });
+    }
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
