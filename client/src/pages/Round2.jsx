@@ -469,7 +469,7 @@ const Round2 = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Kavya Gulati"
+                    placeholder="e.g. Yash Panchal"
                     className="input-field py-3 sm:py-3.5 text-sm sm:text-base"
                   />
                   {errors.name && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.name}</p>}
@@ -486,7 +486,7 @@ const Round2 = () => {
                     type="text"
                     value={rollNumber}
                     onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
-                    placeholder="e.g. 2026UIT3009"
+                    placeholder="e.g. 2026UIN3359"
                     className="input-field py-3 sm:py-3.5 text-sm sm:text-base uppercase font-mono tracking-wider"
                   />
                   {errors.rollNumber && (
@@ -505,7 +505,7 @@ const Round2 = () => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="e.g. 9876543210"
+                    placeholder="e.g. 9996896803"
                     className="input-field py-3 sm:py-3.5 text-sm sm:text-base font-mono"
                   />
                   {errors.phone && <p className="text-xs sm:text-sm text-destructive mt-1.5 font-mono">{errors.phone}</p>}

@@ -1,8 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { getApplications, updateApplicationStatus, getStats } from "../services/api";
+import {
+  getApplications,
+  updateApplicationStatus,
+  getStats,
+  getRound2Submissions,
+} from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye, LogOut, Search, Filter, CheckCircle2, Clock, Users, UserCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  X,
+  Eye,
+  LogOut,
+  Search,
+  CheckCircle2,
+  Clock,
+  Users,
+  UserCheck,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Globe,
+  Code2,
+  Folder,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
 
@@ -72,6 +94,11 @@ const getPaginationRange = (currentPage, totalPages) => {
 
 const AdminDashboard = () => {
   const { admin, logout } = useAuth();
+
+  // Active Tab: 'round1' or 'round2'
+  const [activeTab, setActiveTab] = useState("round1");
+
+  // Round 1 Applications State
   const [allApplications, setAllApplications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,9 +112,26 @@ const AdminDashboard = () => {
   const [totalCount, setTotalCount] = useState(0);
   const tableRef = useRef(null);
 
+  // Round 2 Submissions State
+  const [round2Submissions, setRound2Submissions] = useState([]);
+  const [round2Loading, setRound2Loading] = useState(false);
+  const [round2Dept, setRound2Dept] = useState("All");
+  const [round2Search, setRound2Search] = useState("");
+  const [round2Page, setRound2Page] = useState(1);
+  const [round2TotalPages, setRound2TotalPages] = useState(1);
+  const [round2TotalCount, setRound2TotalCount] = useState(0);
+
   const handlePageChange = (newPage) => {
     if (newPage === page || loading) return;
     setPage(newPage);
+    if (tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleRound2PageChange = (newPage) => {
+    if (newPage === round2Page || round2Loading) return;
+    setRound2Page(newPage);
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -124,17 +168,49 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchRound2 = async (currentPage, dept, search) => {
+    setRound2Loading(true);
+    try {
+      const params = {
+        page: currentPage,
+        limit: 20,
+      };
+      if (dept !== "All") params.department = dept;
+      if (search.trim() !== "") params.search = search.trim();
+
+      const res = await getRound2Submissions(params);
+      setRound2Submissions(res.data?.submissions || []);
+      setRound2TotalPages(res.data?.totalPages || 1);
+      setRound2TotalCount(res.data?.totalSubmissions || 0);
+    } catch (err) {
+      console.error("Failed to load Round 2 submissions", err);
+    } finally {
+      setRound2Loading(false);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchRound2(1, "All", "");
   }, []);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchApplications(page, selectedDept, selectedStatus, searchQuery);
-    }, 300);
+    if (activeTab === "round1") {
+      const delayDebounceFn = setTimeout(() => {
+        fetchApplications(page, selectedDept, selectedStatus, searchQuery);
+      }, 300);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [page, selectedDept, selectedStatus, searchQuery, activeTab]);
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [page, selectedDept, selectedStatus, searchQuery]);
+  useEffect(() => {
+    if (activeTab === "round2") {
+      const delayDebounceFn = setTimeout(() => {
+        fetchRound2(round2Page, round2Dept, round2Search);
+      }, 300);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [round2Page, round2Dept, round2Search, activeTab]);
 
   const handleDeptChange = (newDept) => {
     setSelectedDept(newDept);
@@ -149,6 +225,16 @@ const AdminDashboard = () => {
   const handleSearchChange = (val) => {
     setSearchQuery(val);
     setPage(1);
+  };
+
+  const handleRound2DeptChange = (newDept) => {
+    setRound2Dept(newDept);
+    setRound2Page(1);
+  };
+
+  const handleRound2SearchChange = (val) => {
+    setRound2Search(val);
+    setRound2Page(1);
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -217,11 +303,11 @@ const AdminDashboard = () => {
 
       <div className="max-w-7xl mx-auto">
         {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <p className="font-mono text-xs text-accent font-semibold tracking-widest uppercase mb-1">// ADMIN PANEL</p>
+            <p className="font-mono text-xs text-accent font-semibold tracking-widest uppercase mb-1">// ADMIN PORTAL</p>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-sans">
-              Recruitment Submissions
+              Recruitment Dashboard
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">Logged in as {admin?.name || "Admin"}</p>
           </div>
@@ -230,6 +316,55 @@ const AdminDashboard = () => {
             className="h-10 px-5 inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 text-accent font-semibold text-xs hover:bg-accent hover:text-accent-foreground transition-all duration-200 cursor-pointer"
           >
             <LogOut size={14} /> Sign Out
+          </button>
+        </div>
+
+        {/* Tab Switcher */}
+        <div className="flex items-center gap-3 mb-8 p-1.5 rounded-2xl bg-muted/60 border border-border w-fit max-w-full overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("round1")}
+            className={`px-5 py-2.5 rounded-xl font-sans text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === "round1"
+                ? "bg-accent text-accent-foreground shadow-md shadow-accent/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Round 1 Applications</span>
+            {stats && (
+              <span
+                className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                  activeTab === "round1"
+                    ? "bg-black/25 text-white"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {stats.totalApplications}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("round2")}
+            className={`px-5 py-2.5 rounded-xl font-sans text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-2 cursor-pointer shrink-0 ${
+              activeTab === "round2"
+                ? "bg-accent text-accent-foreground shadow-md shadow-accent/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <Layers className="w-4 h-4" />
+            <span>Round 2 Tasks</span>
+            <span
+              className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                activeTab === "round2"
+                  ? "bg-black/25 text-white"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {round2TotalCount}
+            </span>
           </button>
         </div>
 
@@ -243,252 +378,478 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-        {/* Stats Cards */}
-        {stats ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-            <StatCard 
-              title="Total Applications" 
-              value={stats.totalApplications} 
-              icon={<Users className="w-4 h-4 text-accent" />} 
-              onClick={() => handleStatusFilterChange("All")}
-              active={selectedStatus === "All"}
-            />
-            <StatCard 
-              title="Pending Review" 
-              value={stats.pending} 
-              icon={<Clock className="w-4 h-4 text-amber-500" />} 
-              onClick={() => handleStatusFilterChange(selectedStatus === "pending" ? "All" : "pending")}
-              active={selectedStatus === "pending"}
-            />
-            <StatCard 
-              title="Shortlisted" 
-              value={stats.shortlisted} 
-              icon={<CheckCircle2 className="w-4 h-4 text-blue-500" />} 
-              onClick={() => handleStatusFilterChange(selectedStatus === "shortlisted" ? "All" : "shortlisted")}
-              active={selectedStatus === "shortlisted"}
-            />
-            <StatCard 
-              title="Selected" 
-              value={stats.selected} 
-              icon={<UserCheck className="w-4 h-4 text-emerald-500" />} 
-              onClick={() => handleStatusFilterChange(selectedStatus === "selected" ? "All" : "selected")}
-              active={selectedStatus === "selected"}
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-            {[1, 2, 3, 4].map((i) => (
-              <StatCardSkeleton key={i} />
-            ))}
-          </div>
-        )}
-
-        {/* Applications List Table */}
-        <div ref={tableRef} className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl scroll-mt-32">
-          <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-foreground font-sans">Applicant Records</h2>
-              <p className="text-xs text-muted-foreground font-mono">
-                {loading ? (
-                  <span className="inline-flex items-center gap-1.5 animate-pulse text-accent">
-                    // LOADING APPLICANTS...
-                  </span>
-                ) : (
-                  `// TOTAL ${totalCount} CANDIDATES FOUND`
-                )}
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* Search Bar */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search name, email, roll..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="w-full sm:w-64 input-field text-xs py-2 pl-9 pr-3 rounded-full"
+        {/* TAB 1: ROUND 1 APPLICATIONS */}
+        {activeTab === "round1" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Stats Cards */}
+            {stats ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+                <StatCard
+                  title="Total Applications"
+                  value={stats.totalApplications}
+                  icon={<Users className="w-4 h-4 text-accent" />}
+                  onClick={() => handleStatusFilterChange("All")}
+                  active={selectedStatus === "All"}
                 />
-                <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                <StatCard
+                  title="Pending Review"
+                  value={stats.pending}
+                  icon={<Clock className="w-4 h-4 text-amber-500" />}
+                  onClick={() => handleStatusFilterChange(selectedStatus === "pending" ? "All" : "pending")}
+                  active={selectedStatus === "pending"}
+                />
+                <StatCard
+                  title="Shortlisted"
+                  value={stats.shortlisted}
+                  icon={<CheckCircle2 className="w-4 h-4 text-blue-500" />}
+                  onClick={() => handleStatusFilterChange(selectedStatus === "shortlisted" ? "All" : "shortlisted")}
+                  active={selectedStatus === "shortlisted"}
+                />
+                <StatCard
+                  title="Selected"
+                  value={stats.selected}
+                  icon={<UserCheck className="w-4 h-4 text-emerald-500" />}
+                  onClick={() => handleStatusFilterChange(selectedStatus === "selected" ? "All" : "selected")}
+                  active={selectedStatus === "selected"}
+                />
               </div>
-
-              {/* Department Filter */}
-              <div className="flex items-center gap-2">
-                <select
-                  value={selectedDept}
-                  onChange={(e) => handleDeptChange(e.target.value)}
-                  className="input-field text-xs py-2 px-3 rounded-full cursor-pointer"
-                >
-                  <option value="All">All Domains</option>
-                  <option value="Tech">Tech</option>
-                  <option value="Graphic Design">Graphic Design</option>
-                  <option value="Photography">Photography</option>
-                  <option value="Content">Content</option>
-                  <option value="Video Editing">Video Editing</option>
-                </select>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <StatCardSkeleton key={i} />
+                ))}
               </div>
+            )}
 
-              {/* Status Filter */}
-              <div className="flex items-center gap-2">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => handleStatusFilterChange(e.target.value)}
-                  className="input-field text-xs py-2 px-3 rounded-full cursor-pointer capitalize"
-                >
-                  <option value="All">All Statuses</option>
-                  <option value="pending">Pending Review</option>
-                  <option value="shortlisted">Shortlisted</option>
-                  <option value="selected">Selected</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="submitted">Submitted</option>
-                  <option value="under-review">Under Review</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto min-h-[300px]">
-            <table className="w-full min-w-[750px]">
-              <thead className="bg-muted/50 border-b border-border">
-                <tr>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Name</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Email</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Department</th>
-                  <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Status</th>
-                  <th className="p-4 text-center text-xs font-mono uppercase tracking-wider text-muted-foreground">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60">
-                {loading ? (
-                  Array.from({ length: 7 }).map((_, idx) => (
-                    <TableRowSkeleton key={`skeleton-${idx}`} />
-                  ))
-                ) : allApplications.length > 0 ? (
-                  allApplications.map((app) => (
-                    <tr key={app._id} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-4 text-foreground font-semibold text-sm">{app.personalDetails?.name}</td>
-                      <td className="p-4 text-muted-foreground text-xs">{app.personalDetails?.email}</td>
-                      <td className="p-4 text-accent text-xs font-mono font-semibold">{app.department}</td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(app.status)}`}>
-                          {app.status}
-                        </span>
-                      </td>
-                      <td className="p-4 flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => setSelectedApp(app)}
-                          className="h-8 px-3 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-xs text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer font-medium"
-                        >
-                          <Eye size={13} /> View
-                        </button>
-                        <select
-                          value={app.status}
-                          onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                          className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2 focus:border-accent focus:outline-none cursor-pointer"
-                        >
-                          {statusOptions.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="p-12 text-center text-muted-foreground text-sm font-mono">
-                      No matching candidate applications found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="p-4 sm:p-5 border-t border-border flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
-              <button
-                type="button"
-                disabled={page === 1 || loading}
-                onClick={() => handlePageChange(Math.max(1, page - 1))}
-                className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
-              >
-                ← <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
-              </button>
-
-              {/* Center Pagination View */}
-              <div className="flex items-center gap-1.5">
-                {/* Mobile View: Compact Pill */}
-                <div className="flex sm:hidden items-center gap-1.5 px-3 py-1 rounded-full bg-card border border-border text-xs font-mono">
-                  <span>Page</span>
-                  <span className="text-accent font-bold">{page}</span>
-                  <span>of {totalPages}</span>
+            {/* Applications List Table */}
+            <div ref={tableRef} className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl scroll-mt-32">
+              <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-foreground font-sans">Round 1 Applications</h2>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {loading ? (
+                      <span className="inline-flex items-center gap-1.5 animate-pulse text-accent">
+                        // LOADING APPLICANTS...
+                      </span>
+                    ) : (
+                      `// TOTAL ${totalCount} CANDIDATES FOUND`
+                    )}
+                  </p>
                 </div>
 
-                {/* Tablet / Desktop View: Smart Truncated Range */}
-                <div className="hidden sm:flex items-center gap-1">
-                  {getPaginationRange(page, totalPages).map((item, idx) => {
-                    if (item === "...") {
-                      return (
-                        <span
-                          key={`dots-${idx}`}
-                          className="w-7 sm:w-8 h-8 flex items-center justify-center text-xs font-mono text-muted-foreground select-none"
-                        >
-                          •••
-                        </span>
-                      );
-                    }
-                    return (
-                      <button
-                        key={item}
-                        type="button"
-                        disabled={loading}
-                        onClick={() => handlePageChange(item)}
-                        className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-                          page === item
-                            ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20 scale-105"
-                            : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
-                        }`}
-                      >
-                        {item}
-                      </button>
-                    );
-                  })}
-                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search name, email, roll..."
+                      value={searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="w-full sm:w-64 input-field text-xs py-2 pl-9 pr-3 rounded-full"
+                    />
+                    <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
 
-                {/* Desktop Jump-To Selector */}
-                {totalPages > 7 && (
-                  <div className="hidden md:flex items-center gap-1.5 text-xs font-mono text-muted-foreground ml-2 border-l border-border/80 pl-2.5">
-                    <span>Jump:</span>
+                  {/* Department Filter */}
+                  <div className="flex items-center gap-2">
                     <select
-                      value={page}
-                      disabled={loading}
-                      onChange={(e) => handlePageChange(Number(e.target.value))}
-                      className="h-7 bg-card border border-border text-foreground text-xs rounded-lg px-2 focus:border-accent focus:outline-none cursor-pointer font-medium"
+                      value={selectedDept}
+                      onChange={(e) => handleDeptChange(e.target.value)}
+                      className="input-field text-xs py-2 px-3 rounded-full cursor-pointer"
                     >
-                      {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pNum) => (
-                        <option key={pNum} value={pNum}>
-                          Page {pNum}
-                        </option>
-                      ))}
+                      <option value="All">All Domains</option>
+                      <option value="Tech">Tech</option>
+                      <option value="Graphic Design">Graphic Design</option>
+                      <option value="Photography">Photography</option>
+                      <option value="Content">Content</option>
+                      <option value="Video Editing">Video Editing</option>
                     </select>
                   </div>
-                )}
+
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={selectedStatus}
+                      onChange={(e) => handleStatusFilterChange(e.target.value)}
+                      className="input-field text-xs py-2 px-3 rounded-full cursor-pointer capitalize"
+                    >
+                      <option value="All">All Statuses</option>
+                      <option value="pending">Pending Review</option>
+                      <option value="shortlisted">Shortlisted</option>
+                      <option value="selected">Selected</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="submitted">Submitted</option>
+                      <option value="under-review">Under Review</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <button
-                type="button"
-                disabled={page === totalPages || loading}
-                onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
-                className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
-              >
-                <span className="hidden sm:inline">Next</span><span className="sm:hidden">Next</span> →
-              </button>
+              <div className="overflow-x-auto min-h-[300px]">
+                <table className="w-full min-w-[750px]">
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Name</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Roll / Email</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Department</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Status</th>
+                      <th className="p-4 text-center text-xs font-mono uppercase tracking-wider text-muted-foreground">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {loading ? (
+                      Array.from({ length: 7 }).map((_, idx) => (
+                        <TableRowSkeleton key={`skeleton-${idx}`} />
+                      ))
+                    ) : allApplications.length > 0 ? (
+                      allApplications.map((app) => (
+                        <tr key={app._id} className="hover:bg-muted/30 transition-colors">
+                          <td className="p-4 text-foreground font-semibold text-sm">
+                            <div>{app.personalDetails?.name}</div>
+                            <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{app.personalDetails?.branch} ({app.personalDetails?.campus})</div>
+                          </td>
+                          <td className="p-4 text-xs">
+                            <div className="font-mono text-foreground font-semibold">{app.personalDetails?.rollNumber}</div>
+                            <div className="text-muted-foreground text-[11px]">{app.personalDetails?.email}</div>
+                          </td>
+                          <td className="p-4 text-accent text-xs font-mono font-semibold">{app.department}</td>
+                          <td className="p-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(app.status)}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="p-4 flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => setSelectedApp(app)}
+                              className="h-8 px-3 inline-flex items-center gap-1.5 rounded-full bg-muted border border-border text-xs text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer font-medium"
+                            >
+                              <Eye size={13} /> View
+                            </button>
+                            <select
+                              value={app.status}
+                              onChange={(e) => handleStatusChange(app._id, e.target.value)}
+                              className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2 focus:border-accent focus:outline-none cursor-pointer"
+                            >
+                              {statusOptions.map((opt) => (
+                                <option key={opt} value={opt}>
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-12 text-center text-muted-foreground text-sm font-mono">
+                          No matching candidate applications found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="p-4 sm:p-5 border-t border-border flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
+                  <button
+                    type="button"
+                    disabled={page === 1 || loading}
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
+                    className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
+                  >
+                    ← <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
+                  </button>
+
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex sm:hidden items-center gap-1.5 px-3 py-1 rounded-full bg-card border border-border text-xs font-mono">
+                      <span>Page</span>
+                      <span className="text-accent font-bold">{page}</span>
+                      <span>of {totalPages}</span>
+                    </div>
+
+                    <div className="hidden sm:flex items-center gap-1">
+                      {getPaginationRange(page, totalPages).map((item, idx) => {
+                        if (item === "...") {
+                          return (
+                            <span
+                              key={`dots-${idx}`}
+                              className="w-7 sm:w-8 h-8 flex items-center justify-center text-xs font-mono text-muted-foreground select-none"
+                            >
+                              •••
+                            </span>
+                          );
+                        }
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            disabled={loading}
+                            onClick={() => handlePageChange(item)}
+                            className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                              page === item
+                                ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20 scale-105"
+                                : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={page === totalPages || loading}
+                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+                    className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
+                  >
+                    <span className="hidden sm:inline">Next</span><span className="sm:hidden">Next</span> →
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </motion.div>
+        )}
+
+        {/* TAB 2: ROUND 2 TASK SUBMISSIONS */}
+        {activeTab === "round2" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Round 2 Table Box */}
+            <div ref={tableRef} className="glass-card rounded-2xl border border-border overflow-hidden shadow-xl scroll-mt-32">
+              <div className="p-5 sm:p-6 border-b border-border flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-foreground font-sans">Round 2 Task Submissions</h2>
+                  <p className="text-xs text-muted-foreground font-mono">
+                    {round2Loading ? (
+                      <span className="inline-flex items-center gap-1.5 animate-pulse text-accent">
+                        // LOADING ROUND 2 SUBMISSIONS...
+                      </span>
+                    ) : (
+                      `// TOTAL ${round2TotalCount} TASKS SUBMITTED`
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search name, roll, phone..."
+                      value={round2Search}
+                      onChange={(e) => handleRound2SearchChange(e.target.value)}
+                      className="w-full sm:w-64 input-field text-xs py-2 pl-9 pr-3 rounded-full"
+                    />
+                    <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                  </div>
+
+                  {/* Department Filter */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={round2Dept}
+                      onChange={(e) => handleRound2DeptChange(e.target.value)}
+                      className="input-field text-xs py-2 px-3 rounded-full cursor-pointer"
+                    >
+                      <option value="All">All Domains</option>
+                      <option value="Tech">Tech</option>
+                      <option value="Graphic Design">Graphic Design</option>
+                      <option value="Video Editing">Video Editing</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto min-h-[300px]">
+                <table className="w-full min-w-[750px]">
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Candidate</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Roll Number</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Contact</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Department</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Submitted Work & Links</th>
+                      <th className="p-4 text-right text-xs font-mono uppercase tracking-wider text-muted-foreground">Submitted At</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {round2Loading ? (
+                      Array.from({ length: 5 }).map((_, idx) => (
+                        <TableRowSkeleton key={`r2-skeleton-${idx}`} />
+                      ))
+                    ) : round2Submissions.length > 0 ? (
+                      round2Submissions.map((sub) => (
+                        <tr key={sub._id} className="hover:bg-muted/30 transition-colors">
+                          <td className="p-4 text-foreground font-semibold text-sm">
+                            {sub.name}
+                          </td>
+                          <td className="p-4 text-xs font-mono text-accent font-bold">
+                            {sub.rollNumber}
+                          </td>
+                          <td className="p-4 text-xs font-mono">
+                            {sub.phone ? (
+                              <a
+                                href={`https://wa.me/91${sub.phone.replace(/\D/g, "")}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-muted-foreground hover:text-accent inline-flex items-center gap-1 transition-colors"
+                              >
+                                {sub.phone}
+                                <ExternalLink size={11} className="opacity-70" />
+                              </a>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <span className="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-accent/10 text-accent border border-accent/20">
+                              {sub.department}
+                            </span>
+                          </td>
+                          <td className="p-4 text-xs">
+                            <div className="flex flex-wrap items-center gap-2">
+                              {sub.submissionData?.driveLink && (
+                                <a
+                                  href={sub.submissionData.driveLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="h-7 px-2.5 rounded-lg bg-muted border border-border text-foreground hover:border-accent hover:text-accent inline-flex items-center gap-1.5 transition-all text-xs font-medium font-mono"
+                                >
+                                  <Folder size={12} className="text-accent" />
+                                  <span>Drive Submission</span>
+                                  <ExternalLink size={10} className="opacity-70" />
+                                </a>
+                              )}
+                              {sub.submissionData?.githubLink && (
+                                <a
+                                  href={sub.submissionData.githubLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="h-7 px-2.5 rounded-lg bg-muted border border-border text-foreground hover:border-accent hover:text-accent inline-flex items-center gap-1.5 transition-all text-xs font-medium font-mono"
+                                >
+                                  <Code2 size={12} className="text-accent" />
+                                  <span>GitHub Repo</span>
+                                  <ExternalLink size={10} className="opacity-70" />
+                                </a>
+                              )}
+                              {sub.submissionData?.websiteLink && (
+                                <a
+                                  href={sub.submissionData.websiteLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="h-7 px-2.5 rounded-lg bg-muted border border-border text-foreground hover:border-accent hover:text-accent inline-flex items-center gap-1.5 transition-all text-xs font-medium font-mono"
+                                >
+                                  <Globe size={12} className="text-accent" />
+                                  <span>Live Demo</span>
+                                  <ExternalLink size={10} className="opacity-70" />
+                                </a>
+                              )}
+                              {!sub.submissionData?.driveLink &&
+                                !sub.submissionData?.githubLink &&
+                                !sub.submissionData?.websiteLink && (
+                                  <span className="text-muted-foreground font-mono">No links provided</span>
+                                )}
+                            </div>
+                          </td>
+                          <td className="p-4 text-right text-xs font-mono text-muted-foreground">
+                            {new Date(sub.submittedAt).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                            <div className="text-[10px] text-muted-foreground/80">
+                              {new Date(sub.submittedAt).toLocaleTimeString("en-IN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="p-12 text-center text-muted-foreground text-sm font-mono">
+                          No Round 2 task submissions found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              {round2TotalPages > 1 && (
+                <div className="p-4 sm:p-5 border-t border-border flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-xs text-muted-foreground bg-muted/20">
+                  <button
+                    type="button"
+                    disabled={round2Page === 1 || round2Loading}
+                    onClick={() => handleRound2PageChange(Math.max(1, round2Page - 1))}
+                    className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
+                  >
+                    ← <span className="hidden sm:inline">Previous</span><span className="sm:hidden">Prev</span>
+                  </button>
+
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex sm:hidden items-center gap-1.5 px-3 py-1 rounded-full bg-card border border-border text-xs font-mono">
+                      <span>Page</span>
+                      <span className="text-accent font-bold">{round2Page}</span>
+                      <span>of {round2TotalPages}</span>
+                    </div>
+
+                    <div className="hidden sm:flex items-center gap-1">
+                      {getPaginationRange(round2Page, round2TotalPages).map((item, idx) => {
+                        if (item === "...") {
+                          return (
+                            <span
+                              key={`r2-dots-${idx}`}
+                              className="w-7 sm:w-8 h-8 flex items-center justify-center text-xs font-mono text-muted-foreground select-none"
+                            >
+                              •••
+                            </span>
+                          );
+                        }
+                        return (
+                          <button
+                            key={item}
+                            type="button"
+                            disabled={round2Loading}
+                            onClick={() => handleRound2PageChange(item)}
+                            className={`w-7 sm:w-8 h-7 sm:h-8 rounded-full border text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                              round2Page === item
+                                ? "border-accent bg-accent text-accent-foreground shadow-sm shadow-accent/20 scale-105"
+                                : "border-border bg-card text-foreground hover:border-accent hover:text-accent"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={round2Page === round2TotalPages || round2Loading}
+                    onClick={() => handleRound2PageChange(Math.min(round2TotalPages, round2Page + 1))}
+                    className="h-8 px-3.5 sm:px-4 rounded-full border border-border bg-card text-foreground hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:text-foreground disabled:hover:border-border transition-all cursor-pointer font-semibold disabled:cursor-not-allowed text-xs flex items-center gap-1 shrink-0"
+                  >
+                    <span className="hidden sm:inline">Next</span><span className="sm:hidden">Next</span> →
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Candidate Profile Details Modal */}
