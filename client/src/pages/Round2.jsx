@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
-import { getShortlistedCandidates } from "../services/api";
+import { getShortlistedCandidates, submitRound2Task, checkRound2Status } from "../services/api";
 import constantData from "../constant";
 
 const DEPARTMENTS = [
@@ -129,9 +129,25 @@ const Round2 = () => {
       return candRoll === cleanRoll && candDept === targetDept;
     });
 
-    setIsValidating(false);
-
     if (matchedCandidate) {
+      // Check if student has already submitted their Round 2 task for this roll number + department
+      try {
+        const statusRes = await checkRound2Status({
+          rollNumber: rollNumber.trim().toUpperCase(),
+          department: selectedDept,
+        });
+        if (statusRes?.data?.alreadySubmitted) {
+          setIsValidating(false);
+          setErrors({
+            verification: `You have already submitted your Round 2 task for ${selectedDept}. Each candidate can submit only once per department.`,
+          });
+          return;
+        }
+      } catch (statusErr) {
+        console.warn("Could not check prior submission status:", statusErr);
+      }
+
+      setIsValidating(false);
       setVerifiedCandidate({
         name: matchedCandidate.personalDetails?.name || matchedCandidate.name || name,
         rollNumber: matchedCandidate.personalDetails?.rollNumber || matchedCandidate.rollNumber || rollNumber,
@@ -141,6 +157,7 @@ const Round2 = () => {
       setStep(2);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
+      setIsValidating(false);
       setErrors({
         verification: `Roll Number "${rollNumber.trim().toUpperCase()}" is not shortlisted for ${selectedDept} in Round 1. Please check your roll number or selected department.`,
       });
@@ -182,17 +199,38 @@ const Round2 = () => {
     setErrors({});
     setIsSubmitting(true);
 
-    // Simulate task submission delay
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setIsSubmitting(false);
+    try {
+      const payload = {
+        name: verifiedCandidate?.name || name.trim(),
+        rollNumber: (verifiedCandidate?.rollNumber || rollNumber).trim().toUpperCase(),
+        phone: (verifiedCandidate?.phone || phone).trim(),
+        department: selectedDept,
+        submissionData: {
+          driveLink: driveLink.trim() || undefined,
+          githubLink: githubLink.trim() || undefined,
+          websiteLink: websiteLink.trim() || undefined,
+        },
+      };
 
-    // Navigate to success page
-    navigate("/success", {
-      state: {
-        name: name || verifiedCandidate?.name || "Applicant",
-        department: `${selectedDept} (Round 2 Task)`,
-      },
-    });
+      await submitRound2Task(payload);
+      setIsSubmitting(false);
+
+      // Navigate to success page
+      navigate("/success", {
+        state: {
+          name: payload.name,
+          department: `${selectedDept} (Round 2 Task)`,
+        },
+      });
+    } catch (err) {
+      setIsSubmitting(false);
+      const msg =
+        err.response?.data?.message ||
+        "Failed to submit your Round 2 task. Please try again.";
+      setErrors({
+        submission: msg,
+      });
+    }
   };
 
   return (
@@ -744,6 +782,18 @@ const Round2 = () => {
                       Ensure your Google Drive file permission is set to <strong>"Anyone with the link"</strong>.
                     </p>
                   </div>
+                )}
+
+                {/* Submission Error Banner */}
+                {errors.submission && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 flex items-start gap-3 text-destructive text-xs sm:text-sm"
+                  >
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <p className="font-mono leading-relaxed">{errors.submission}</p>
+                  </motion.div>
                 )}
 
                 {/* Form Buttons */}

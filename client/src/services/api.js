@@ -68,6 +68,8 @@ function transformApplicationData(data) {
 export const submitApplication = (data) => api.post('/applications', transformApplicationData(data));
 export const getDepartments = () => api.get('/departments');
 export const getShortlistedCandidates = (params) => api.get('/applications/results', { params });
+export const submitRound2Task = (data) => api.post('/round2/submit', data);
+export const checkRound2Status = (params) => api.get('/round2/check', { params });
 export const login = (credentials) => api.post('/auth/login', credentials);
 export const getApplications = (params) => api.get('/admin/applications', { params });
 export const getApplication = (id) => api.get(`/admin/applications/${id}`);
