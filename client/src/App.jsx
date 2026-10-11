@@ -17,7 +17,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Application />} />
-            <Route path="/round2" element={<Round2Closed />} />
+            <Route path="/round2" element={<Round2 />} />
             <Route path="/round2/closed" element={<Round2Closed />} />
             <Route path="/success" element={<Success />} />
             <Route path="/admin/login" element={<AdminLogin />} />

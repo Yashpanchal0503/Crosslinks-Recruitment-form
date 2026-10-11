@@ -5,10 +5,15 @@ import Round2Submission from '../models/Round2Submission.js';
  * Prevents multiple submissions by rollNumber + department
  */
 export const submitRound2Task = async (req, res) => {
-  return res.status(403).json({
-    success: false,
-    message: 'Round 2 submissions are officially closed.',
-  });
+  // Check deadline: 12th October 2026, 11:59:59 PM IST
+  const DEADLINE = new Date('2026-10-12T23:59:59+05:30');
+  if (new Date() > DEADLINE) {
+    return res.status(403).json({
+      success: false,
+      message: 'Round 2 submissions have officially closed on 12th October at 11:59 PM.',
+    });
+  }
+
   try {
     const { name, rollNumber, phone, department, submissionData } = req.body;
 

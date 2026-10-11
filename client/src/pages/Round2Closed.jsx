@@ -84,7 +84,7 @@ const Round2Closed = () => {
               </div>
               <div className="min-w-0">
                 <p className="text-[11px] font-mono text-accent font-semibold tracking-wider uppercase">DEADLINE PASSED</p>
-                <p className="text-sm font-bold text-foreground font-sans mt-0.5">11 October, 2026</p>
+                <p className="text-sm font-bold text-foreground font-sans mt-0.5">12 October, 2026</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Forms closed at 11:59 PM</p>
               </div>
             </div>

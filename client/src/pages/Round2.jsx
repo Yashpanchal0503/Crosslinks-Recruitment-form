@@ -82,9 +82,16 @@ const Round2 = () => {
     const d = deptStr.trim().toLowerCase();
     if (d.includes("gd") || d.includes("graphic")) return "Graphic Design";
     if (d.includes("tech")) return "Tech";
-    if (d.includes("ve") || d.includes("video")) return "Video Editing";
     return deptStr;
   };
+
+  // Auto-redirect if deadline (12th October 11:59 PM) has passed
+  React.useEffect(() => {
+    const DEADLINE = new Date('2026-10-12T23:59:59+05:30');
+    if (new Date() > DEADLINE) {
+      navigate('/round2/closed', { replace: true });
+    }
+  }, [navigate]);
 
   // Step 1: Validate Roll Number against backend API shortlist (with constantData fallback)
   const handleValidateAndProceed = async (e) => {
@@ -342,7 +349,7 @@ const Round2 = () => {
               </div>
               <div>
                 <p className="text-xs sm:text-sm font-mono text-accent font-semibold tracking-widest uppercase">// APPLICATION DEADLINE</p>
-                <p className="text-xl sm:text-2xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">11 October, 2026</p>
+                <p className="text-xl sm:text-2xl font-extrabold text-foreground font-sans tracking-tight mt-0.5">12 October, 2026 (11:59 PM)</p>
               </div>
             </div>
             <span className="text-xs font-mono font-bold text-amber-500 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
