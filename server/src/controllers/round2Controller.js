@@ -5,6 +5,10 @@ import Round2Submission from '../models/Round2Submission.js';
  * Prevents multiple submissions by rollNumber + department
  */
 export const submitRound2Task = async (req, res) => {
+  return res.status(403).json({
+    success: false,
+    message: 'Round 2 submissions are officially closed.',
+  });
   try {
     const { name, rollNumber, phone, department, submissionData } = req.body;
 
@@ -105,11 +109,19 @@ export const checkRound2Status = async (req, res) => {
  */
 export const getAllRound2Submissions = async (req, res) => {
   try {
-    const { department, search, page = 1, limit = 50 } = req.query;
+    const { department, status, search, page = 1, limit = 50 } = req.query;
     let query = {};
 
     if (department && department !== 'All') {
       query.department = department;
+    }
+
+    if (status && status !== 'All') {
+      if (status === 'pending') {
+        query.status = { $in: ['submitted', 'under-review'] };
+      } else {
+        query.status = status;
+      }
     }
 
     if (search) {
@@ -140,3 +152,38 @@ export const getAllRound2Submissions = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
+
+/**
+ * Update Round 2 submission status (Admin)
+ */
+export const updateRound2Status = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const validStatuses = ['submitted', 'under-review', 'shortlisted', 'rejected', 'selected'];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
+    }
+
+    const submission = await Round2Submission.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    );
+
+    if (!submission) {
+      return res.status(404).json({ success: false, message: 'Round 2 submission not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Status updated successfully',
+      submission,
+    });
+  } catch (error) {
+    console.error('Error in updateRound2Status:', error);
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+  }
+};
+

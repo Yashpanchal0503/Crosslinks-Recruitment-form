@@ -27,6 +27,11 @@ const round2SubmissionSchema = new mongoose.Schema({
     githubLink: { type: String, trim: true },
     websiteLink: { type: String, trim: true },
   },
+  status: {
+    type: String,
+    enum: ['submitted', 'under-review', 'shortlisted', 'rejected', 'selected'],
+    default: 'submitted',
+  },
   submittedAt: {
     type: Date,
     default: Date.now,
