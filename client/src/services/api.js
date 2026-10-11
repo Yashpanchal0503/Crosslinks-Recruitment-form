@@ -75,6 +75,7 @@ export const getApplications = (params) => api.get('/admin/applications', { para
 export const getApplication = (id) => api.get(`/admin/applications/${id}`);
 export const updateApplicationStatus = (id, status) => api.patch(`/admin/applications/${id}/status`, { status });
 export const getRound2Submissions = (params) => api.get('/admin/round2', { params });
+export const updateRound2Status = (id, status) => api.patch(`/admin/round2/${id}/status`, { status });
 export const getStats = () => api.get('/admin/stats');
 export const getProfile = () => api.get('/admin/profile');
 

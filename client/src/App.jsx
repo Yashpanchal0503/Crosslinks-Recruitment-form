@@ -7,6 +7,7 @@ import Success from './pages/Success';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import Round2Closed from './pages/Round2Closed';
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Application />} />
-            <Route path="/round2" element={<Round2 />} />
+            <Route path="/round2" element={<Round2Closed />} />
+            <Route path="/round2/closed" element={<Round2Closed />} />
             <Route path="/success" element={<Success />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />

@@ -5,6 +5,7 @@ import {
   updateApplicationStatus,
   getStats,
   getRound2Submissions,
+  updateRound2Status,
 } from "../services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -116,6 +117,7 @@ const AdminDashboard = () => {
   const [round2Submissions, setRound2Submissions] = useState([]);
   const [round2Loading, setRound2Loading] = useState(false);
   const [round2Dept, setRound2Dept] = useState("All");
+  const [round2Status, setRound2Status] = useState("All");
   const [round2Search, setRound2Search] = useState("");
   const [round2Page, setRound2Page] = useState(1);
   const [round2TotalPages, setRound2TotalPages] = useState(1);
@@ -168,7 +170,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchRound2 = async (currentPage, dept, search) => {
+  const fetchRound2 = async (currentPage, dept, status, search) => {
     setRound2Loading(true);
     try {
       const params = {
@@ -176,7 +178,8 @@ const AdminDashboard = () => {
         limit: 20,
       };
       if (dept !== "All") params.department = dept;
-      if (search.trim() !== "") params.search = search.trim();
+      if (status !== "All") params.status = status;
+      if (search && search.trim() !== "") params.search = search.trim();
 
       const res = await getRound2Submissions(params);
       setRound2Submissions(res.data?.submissions || []);
@@ -191,7 +194,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchStats();
-    fetchRound2(1, "All", "");
+    fetchRound2(1, "All", "All", "");
   }, []);
 
   useEffect(() => {
@@ -206,11 +209,11 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeTab === "round2") {
       const delayDebounceFn = setTimeout(() => {
-        fetchRound2(round2Page, round2Dept, round2Search);
+        fetchRound2(round2Page, round2Dept, round2Status, round2Search);
       }, 300);
       return () => clearTimeout(delayDebounceFn);
     }
-  }, [round2Page, round2Dept, round2Search, activeTab]);
+  }, [round2Page, round2Dept, round2Status, round2Search, activeTab]);
 
   const handleDeptChange = (newDept) => {
     setSelectedDept(newDept);
@@ -232,9 +235,25 @@ const AdminDashboard = () => {
     setRound2Page(1);
   };
 
+  const handleRound2StatusFilterChange = (newStatus) => {
+    setRound2Status(newStatus);
+    setRound2Page(1);
+  };
+
   const handleRound2SearchChange = (val) => {
     setRound2Search(val);
     setRound2Page(1);
+  };
+
+  const handleRound2StatusChange = async (id, newStatus) => {
+    try {
+      await updateRound2Status(id, newStatus);
+      setRound2Submissions((prev) =>
+        prev.map((sub) => (sub._id === id ? { ...sub, status: newStatus } : sub))
+      );
+    } catch (err) {
+      alert(err.response?.data?.message || "Round 2 status update failed");
+    }
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -667,11 +686,28 @@ const AdminDashboard = () => {
                       <option value="Video Editing">Video Editing</option>
                     </select>
                   </div>
+
+                  {/* Status Filter */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={round2Status}
+                      onChange={(e) => handleRound2StatusFilterChange(e.target.value)}
+                      className="input-field text-xs py-2 px-3 rounded-full cursor-pointer capitalize"
+                    >
+                      <option value="All">All Statuses</option>
+                      <option value="pending">Pending Review</option>
+                      <option value="shortlisted">Shortlisted</option>
+                      <option value="selected">Selected</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="submitted">Submitted</option>
+                      <option value="under-review">Under Review</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               <div className="overflow-x-auto min-h-[300px]">
-                <table className="w-full min-w-[750px]">
+                <table className="w-full min-w-[850px]">
                   <thead className="bg-muted/50 border-b border-border">
                     <tr>
                       <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Candidate</th>
@@ -679,6 +715,8 @@ const AdminDashboard = () => {
                       <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Contact</th>
                       <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Department</th>
                       <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Submitted Work & Links</th>
+                      <th className="p-4 text-left text-xs font-mono uppercase tracking-wider text-muted-foreground">Status</th>
+                      <th className="p-4 text-center text-xs font-mono uppercase tracking-wider text-muted-foreground">Action</th>
                       <th className="p-4 text-right text-xs font-mono uppercase tracking-wider text-muted-foreground">Submitted At</th>
                     </tr>
                   </thead>
@@ -761,6 +799,24 @@ const AdminDashboard = () => {
                                 )}
                             </div>
                           </td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-semibold border capitalize ${getStatusBadgeClass(sub.status || 'submitted')}`}>
+                              {sub.status || 'submitted'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <select
+                              value={sub.status || 'submitted'}
+                              onChange={(e) => handleRound2StatusChange(sub._id, e.target.value)}
+                              className="h-8 bg-muted border border-border text-foreground text-xs rounded-full px-2.5 focus:border-accent focus:outline-none cursor-pointer capitalize font-mono"
+                            >
+                              {statusOptions.map((opt) => (
+                                <option key={opt} value={opt}>
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
                           <td className="p-4 text-right text-xs font-mono text-muted-foreground">
                             {new Date(sub.submittedAt).toLocaleDateString("en-IN", {
                               day: "numeric",
@@ -778,7 +834,7 @@ const AdminDashboard = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6} className="p-12 text-center text-muted-foreground text-sm font-mono">
+                        <td colSpan={8} className="p-12 text-center text-muted-foreground text-sm font-mono">
                           No Round 2 task submissions found.
                         </td>
                       </tr>
