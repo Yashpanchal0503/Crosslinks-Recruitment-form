@@ -138,23 +138,6 @@ const Round2 = () => {
     });
 
     if (matchedCandidate) {
-      // Check if student has already submitted their Round 2 task for this roll number + department
-      try {
-        const statusRes = await checkRound2Status({
-          rollNumber: rollNumber.trim().toUpperCase(),
-          department: selectedDept,
-        });
-        if (statusRes?.data?.alreadySubmitted) {
-          setIsValidating(false);
-          setErrors({
-            verification: `You have already submitted your Round 2 task for ${selectedDept}. Each candidate can submit only once per department.`,
-          });
-          return;
-        }
-      } catch (statusErr) {
-        console.warn("Could not check prior submission status:", statusErr);
-      }
-
       setIsValidating(false);
       setVerifiedCandidate({
         name: matchedCandidate.personalDetails?.name || matchedCandidate.name || name,

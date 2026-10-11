@@ -26,29 +26,33 @@ export const submitRound2Task = async (req, res) => {
 
     const cleanRoll = rollNumber.trim().toUpperCase();
 
-    // Check if the candidate has already submitted for this department
-    const existing = await Round2Submission.findOne({
-      rollNumber: cleanRoll,
-      department: department,
-    });
-
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        alreadySubmitted: true,
-        message: `You have already submitted your Round 2 task for ${department}. Each student can only submit once per department.`,
-        submittedAt: existing.submittedAt,
+    // Create submission (allows multiple submissions)
+    let submission;
+    try {
+      submission = await Round2Submission.create({
+        name: name.trim(),
+        rollNumber: cleanRoll,
+        phone: (phone || '').trim(),
+        department,
+        submissionData: submissionData || {},
       });
+    } catch (createErr) {
+      if (createErr.code === 11000) {
+        // Fallback if unique index still exists in MongoDB Atlas: update record with latest submission
+        submission = await Round2Submission.findOneAndUpdate(
+          { rollNumber: cleanRoll, department },
+          {
+            name: name.trim(),
+            phone: (phone || '').trim(),
+            submissionData: submissionData || {},
+            submittedAt: new Date(),
+          },
+          { new: true }
+        );
+      } else {
+        throw createErr;
+      }
     }
-
-    // Create new submission
-    const submission = await Round2Submission.create({
-      name: name.trim(),
-      rollNumber: cleanRoll,
-      phone: (phone || '').trim(),
-      department,
-      submissionData: submissionData || {},
-    });
 
     res.status(201).json({
       success: true,
@@ -56,49 +60,16 @@ export const submitRound2Task = async (req, res) => {
       submission,
     });
   } catch (error) {
-    // Handle MongoDB duplicate key error code 11000
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        alreadySubmitted: true,
-        message: 'You have already submitted your Round 2 task for this department.',
-      });
-    }
     console.error('Error in submitRound2Task:', error);
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
 /**
- * Check if candidate already submitted for rollNumber + department
+ * Check candidate status (Allows multiple submissions)
  */
 export const checkRound2Status = async (req, res) => {
   try {
-    const { rollNumber, department } = req.query;
-
-    if (!rollNumber || !department) {
-      return res.status(400).json({
-        success: false,
-        message: 'Roll number and department are required.',
-      });
-    }
-
-    const cleanRoll = rollNumber.trim().toUpperCase();
-
-    const existing = await Round2Submission.findOne({
-      rollNumber: cleanRoll,
-      department: department,
-    });
-
-    if (existing) {
-      return res.json({
-        success: true,
-        alreadySubmitted: true,
-        message: `A Round 2 submission already exists for Roll No. ${cleanRoll} in ${department}.`,
-        submittedAt: existing.submittedAt,
-      });
-    }
-
     return res.json({
       success: true,
       alreadySubmitted: false,

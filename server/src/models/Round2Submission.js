@@ -38,10 +38,13 @@ const round2SubmissionSchema = new mongoose.Schema({
   },
 });
 
-// Compound unique index on rollNumber + department to strictly prevent duplicate submissions
-round2SubmissionSchema.index({ rollNumber: 1, department: 1 }, { unique: true });
+// Index for faster queries (non-unique to allow multiple submissions)
+round2SubmissionSchema.index({ rollNumber: 1, department: 1 });
 round2SubmissionSchema.index({ submittedAt: -1 });
 
 const Round2Submission = mongoose.model('Round2Submission', round2SubmissionSchema);
+
+// Drop unique index in MongoDB if it exists to allow multiple submissions
+Round2Submission.collection.dropIndex('rollNumber_1_department_1').catch(() => {});
 
 export default Round2Submission;
