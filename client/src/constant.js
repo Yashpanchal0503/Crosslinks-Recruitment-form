@@ -1,283 +1,203 @@
-const data=[{
-  "_id": {
-    "$oid": "6a7b14a498317fb2d445da60"
+const data = [
+  {
+    _id: { $oid: "round2-photo-1" },
+    personalDetails: { name: "Anirudh Badole", rollNumber: "2026UEE4600" },
+    department: "Photography"
   },
-  "personalDetails": {
-    "name": "Kavya Gulati",
-    "rollNumber": "2026UIT3009"
+  {
+    _id: { $oid: "round2-photo-2" },
+    personalDetails: { name: "Avishka Varshney", rollNumber: "2026UEV2850" },
+    department: "Photography"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b1aa898317fb2d445da90"
+  {
+    _id: { $oid: "round2-photo-3" },
+    personalDetails: { name: "Kavyanshi", rollNumber: "2026UCE7067" },
+    department: "Photography"
   },
-  "personalDetails": {
-    "name": "DARSH KESHRI",
-    "rollNumber": "2026UBT1076"
+  {
+    _id: { $oid: "round2-photo-4" },
+    personalDetails: { name: "Samar Galhot", rollNumber: "2026UBA9005" },
+    department: "Photography"
   },
-  "department": "Photography"
-},
-{
-  "_id": {
-    "$oid": "6a7b1b4398317fb2d445da93"
+  {
+    _id: { $oid: "round2-photo-5" },
+    personalDetails: { name: "Shivin Arora", rollNumber: "2026UEC2530" },
+    department: "Photography"
   },
-  "personalDetails": {
-    "name": "Bhavya Agarwal",
-    "rollNumber": "2026UBD9717"
+  {
+    _id: { $oid: "round2-photo-6" },
+    personalDetails: { name: "Shriyansh Sisodiya", rollNumber: "2026UCS1514" },
+    department: "Photography"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b237898317fb2d445dab4"
+  {
+    _id: { $oid: "round2-photo-7" },
+    personalDetails: { name: "Syed Momin Razvi", rollNumber: "2026UBD9758" },
+    department: "Photography"
   },
-  "personalDetails": {
-    "name": "Rohan Arora",
-    "rollNumber": "2026UIC3674"
+  {
+    _id: { $oid: "round2-tech-1" },
+    personalDetails: { name: "Deepanshu", rollNumber: "2026UEC2669" },
+    department: "Tech"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b28c298317fb2d445dae8"
+  {
+    _id: { $oid: "round2-tech-2" },
+    personalDetails: { name: "Manit Shukla", rollNumber: "2026UEC2604" },
+    department: "Tech"
   },
-  "personalDetails": {
-    "name": "niharika singh",
-    "rollNumber": "2026UBA9008"
+  {
+    _id: { $oid: "round2-tech-3" },
+    personalDetails: { name: "Mayank", rollNumber: "2026UME4009" },
+    department: "Tech"
   },
-  "department": "Video Editing"
-},
-{
-  "_id": {
-    "$oid": "6a7b2d7e98317fb2d445db13"
+  {
+    _id: { $oid: "round2-tech-4" },
+    personalDetails: { name: "Ritesh Kumar", rollNumber: "2026UCS1599" },
+    department: "Tech"
   },
-  "personalDetails": {
-    "name": "Syed Momin Razvi",
-    "rollNumber": "2026UBD9758"
+  {
+    _id: { $oid: "round2-tech-5" },
+    personalDetails: { name: "Arpit Yadav", rollNumber: "2026UIC3566" },
+    department: "Tech"
   },
-  "department": "Photography"
-},
-{
-  "_id": {
-    "$oid": "6a7b339b98317fb2d445db32"
+  {
+    _id: { $oid: "round2-tech-6" },
+    personalDetails: { name: "Daivik Verma", rollNumber: "2026UIN2552" },
+    department: "Tech"
   },
-  "personalDetails": {
-    "name": "Daniel Thangmuansiam Khuptong",
-    "rollNumber": "2026UME4204"
+  {
+    _id: { $oid: "round2-tech-7" },
+    personalDetails: { name: "Pranay Balsana", rollNumber: "2026UCS1648" },
+    department: "Tech"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b382998317fb2d445db4e"
+  {
+    _id: { $oid: "round2-tech-8" },
+    personalDetails: { name: "Pranav Kumar", rollNumber: "2026UMV7660" },
+    department: "Tech"
   },
-  "personalDetails": {
-    "name": "Pranay Balsana",
-    "rollNumber": "2026UCS1648"
+  {
+    _id: { $oid: "round2-tech-9" },
+    personalDetails: { name: "Niyati Jain", rollNumber: "2026UCS1550" },
+    department: "Tech"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b3afb98317fb2d445db64"
+  {
+    _id: { $oid: "round2-gd-1" },
+    personalDetails: { name: "Sachi Pandey", rollNumber: "2026UBD9771" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Shriyansh Sisodiya",
-    "rollNumber": "2026UCS1514"
+  {
+    _id: { $oid: "round2-gd-2" },
+    personalDetails: { name: "Akul Batra", rollNumber: "2026UEE3550" },
+    department: "Graphic Design"
   },
-  "department": "Photography"
-},
-{
-  "_id": {
-    "$oid": "6a7b3ce798317fb2d445db74"
+  {
+    _id: { $oid: "round2-gd-3" },
+    personalDetails: { name: "Avani Patil", rollNumber: "2026UCS1517" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Aryan Kumar",
-    "rollNumber": "2026UCD2124"
+  {
+    _id: { $oid: "round2-gd-4" },
+    personalDetails: { name: "Vishal Sati", rollNumber: "2026UBD9777" },
+    department: "Graphic Design"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b3e4698317fb2d445db7b"
+  {
+    _id: { $oid: "round2-gd-5" },
+    personalDetails: { name: "Tamanna Bansal", rollNumber: "2026UBA9026" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Arpit Yadav",
-    "rollNumber": "2026UIC3566"
+  {
+    _id: { $oid: "round2-gd-6" },
+    personalDetails: { name: "Anushka Raj Singhal", rollNumber: "2026UIT3034" },
+    department: "Graphic Design"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b3ef198317fb2d445db81"
+  {
+    _id: { $oid: "round2-gd-7" },
+    personalDetails: { name: "Oindrila Sil", rollNumber: "2026UEC2512" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Pari Yadav",
-    "rollNumber": "2026UBA9059"
+  {
+    _id: { $oid: "round2-gd-8" },
+    personalDetails: { name: "Gauransh Atri", rollNumber: "2026UBD9761" },
+    department: "Graphic Design"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b41c298317fb2d445db94"
+  {
+    _id: { $oid: "round2-gd-9" },
+    personalDetails: { name: "Sonam Kumari", rollNumber: "2026UBD9775" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Arush Kumar Gupta",
-    "rollNumber": "2026UBT1040"
+  {
+    _id: { $oid: "round2-gd-10" },
+    personalDetails: { name: "Anukriti Kumar", rollNumber: "2026UIC3529" },
+    department: "Graphic Design"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b427398317fb2d445dba3"
+  {
+    _id: { $oid: "round2-gd-11" },
+    personalDetails: { name: "Aritra Kundu", rollNumber: "2026UBD9760" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Gurleen kaur sood ",
-    "rollNumber": "2026UCS1565"
+  {
+    _id: { $oid: "round2-gd-12" },
+    personalDetails: { name: "Manya Sharma", rollNumber: "2026UME4220" },
+    department: "Graphic Design"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b449698317fb2d445dbfa"
+  {
+    _id: { $oid: "round2-gd-13" },
+    personalDetails: { name: "Parth Chawla", rollNumber: "2026UIC4023" },
+    department: "Graphic Design"
   },
-  "personalDetails": {
-    "name": "Saransh Jeph",
-    "rollNumber": "2026UIT3001"
+  {
+    _id: { $oid: "round2-video-1" },
+    personalDetails: { name: "Aryaman Jain", rollNumber: "2026UEC2511" },
+    department: "Video Editing"
   },
-  "department": "Video Editing"
-},
-{
-  "_id": {
-    "$oid": "6a7b45d498317fb2d445dc14"
+  {
+    _id: { $oid: "round2-video-2" },
+    personalDetails: { name: "Ayush Sahani", rollNumber: "2026UIT3072" },
+    department: "Video Editing"
   },
-  "personalDetails": {
-    "name": "Nishant Pahadia",
-    "rollNumber": "2026UEE4580"
+  {
+    _id: { $oid: "round2-video-3" },
+    personalDetails: { name: "Khushi Garg", rollNumber: "2026UCA1929" },
+    department: "Video Editing"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b48ea98317fb2d445dc5f"
+  {
+    _id: { $oid: "round2-video-4" },
+    personalDetails: { name: "Vishal Sati", rollNumber: "2026UBD9777" },
+    department: "Video Editing"
   },
-  "personalDetails": {
-    "name": "Dilmeet Kalra",
-    "rollNumber": "2026UME4123"
+  {
+    _id: { $oid: "round2-video-5" },
+    personalDetails: { name: "Avishi Naagar", rollNumber: "2026UBD9715" },
+    department: "Video Editing"
   },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b492498317fb2d445dc62"
+  {
+    _id: { $oid: "round2-video-6" },
+    personalDetails: { name: "Vyom Rana", rollNumber: "2026UGI7225" },
+    department: "Video Editing"
   },
-  "personalDetails": {
-    "name": "Saatvik Katiyar",
-    "rollNumber": "2026UCD2170"
+  {
+    _id: { $oid: "round2-video-7" },
+    personalDetails: { name: "Kaushal Kumar", rollNumber: "2026UGI7202" },
+    department: "Video Editing"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b4aa1f351975144ed45aa"
+  {
+    _id: { $oid: "round2-video-8" },
+    personalDetails: { name: "Kavya Gulati", rollNumber: "2026UIT3009" },
+    department: "Video Editing"
   },
-  "personalDetails": {
-    "name": "Dhwani Garg ",
-    "rollNumber": "2026UBD9757"
+  {
+    _id: { $oid: "round2-video-9" },
+    personalDetails: { name: "Rishav Sarkar", rollNumber: "2026UEE4644" },
+    department: "Video Editing"
   },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b4e6bee9d53ad5cb9c1ad"
-  },
-  "personalDetails": {
-    "name": "Samar Gahlot",
-    "rollNumber": "2026UBA9005"
-  },
-  "department": "Photography"
-},
-{
-  "_id": {
-    "$oid": "6a7b5215ee9d53ad5cb9c1fb"
-  },
-  "personalDetails": {
-    "name": "Chhavi Aggarwal",
-    "rollNumber": "2026UCA1835"
-  },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b583aee9d53ad5cb9c21a"
-  },
-  "personalDetails": {
-    "name": "RISHI VATS",
-    "rollNumber": "2026UBD9767"
-  },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7b5ce5ee9d53ad5cb9c234"
-  },
-  "personalDetails": {
-    "name": "Aryan",
-    "rollNumber": "2026UME4119"
-  },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7b6d46ee9d53ad5cb9c2cd"
-  },
-  "personalDetails": {
-    "name": "Gaurang",
-    "rollNumber": "2026UEC2709"
-  },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7bc7cf02bb62f6b3831d26"
-  },
-  "personalDetails": {
-    "name": "Jatin Jarwal",
-    "rollNumber": "2026UCS1518"
-  },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7c601002bb62f6b3831ef1"
-  },
-  "personalDetails": {
-    "name": "AARINI RAI BARANWAL",
-    "rollNumber": "2026UCD2159"
-  },
-  "department": "Tech"
-},
-{
-  "_id": {
-    "$oid": "6a7c607502bb62f6b3831ef7"
-  },
-  "personalDetails": {
-    "name": "Shreshtha Sehgal",
-    "rollNumber": "2026UME4137"
-  },
-  "department": "Content"
-},
-{
-  "_id": {
-    "$oid": "6a7ca73502bb62f6b38320a6"
-  },
-  "personalDetails": {
-    "name": "Krishna Soni",
-    "rollNumber": "2026UEC2565"
-  },
-  "department": "Content"
-},
+  {
+    _id: { $oid: "round2-video-10" },
+    personalDetails: { name: "Tejas Yadav", rollNumber: "2026UEV2817" },
+    department: "Video Editing"
+  }
+];
+
+export default data;
+
 {
   "_id": {
     "$oid": "6a7ccff702bb62f6b383214a"
