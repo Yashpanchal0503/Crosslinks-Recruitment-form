@@ -52,7 +52,7 @@ const DEPARTMENTS = [
 ];
 
 const Application = () => {
-  const [selectedDept, setSelectedDept] = useState("Content");
+  const [selectedDept, setSelectedDept] = useState("Tech");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -191,11 +191,11 @@ const Application = () => {
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-xs font-semibold tracking-wider uppercase"
             >
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              CROSSLINKS RECRUITMENTS 2026 • ROUND 1
+              CROSSLINKS RECRUITMENTS 2026 • ROUND 2
             </motion.div>
           </div>
 
-          {/* Main Title: Round 1 Results */}
+          {/* Main Title: Round 2 Results */}
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -203,7 +203,7 @@ const Application = () => {
             className="w-full text-center tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans flex flex-wrap items-baseline justify-center gap-x-3.5 select-none"
           >
             <span className="font-display font-black tracking-tight uppercase">
-              Round 1
+              Round 2
             </span>
             <span className="font-instrument italic font-normal text-accent lowercase text-[1.15em]">
               results
@@ -225,10 +225,10 @@ const Application = () => {
                   </div>
                   <div>
                     <p className="text-sm sm:text-base font-medium text-foreground leading-snug">
-                      Round 2 Tasks are now live for shortlisted candidates!
+                      Round 2 results are live for shortlisted candidates.
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Verify your shortlist status and access your domain assignment.
+                      Check your department shortlist and continue to the task portal.
                     </p>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ const Application = () => {
 
           <div className="hidden sm:inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground">
             <UserCheck className="w-3.5 h-3.5 text-accent" />
-            <span>Round 1 Qualifiers</span>
+            <span>Round 2 Qualifiers</span>
           </div>
         </section>
 
@@ -498,10 +498,10 @@ const Application = () => {
         {/* Footer Banner */}
         <section className="mt-14 text-center border-t border-border/60 pt-8 pb-4">
           <p className="text-sm sm:text-base font-bold text-foreground tracking-tight font-sans">
-            Congratulations for making it to Round 2!
+            Congratulations to all shortlisted candidates for Round 2!
           </p>
           <p className="text-xs text-muted-foreground mt-1.5 font-mono">
-            Stay tuned for upcoming interview schedules and domain task details.
+            Final selections and next steps will be shared soon.
           </p>
         </section>
       </main>
