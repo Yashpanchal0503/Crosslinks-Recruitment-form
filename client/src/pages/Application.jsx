@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
-import { getShortlistedCandidates } from "../services/api";
 import constantData from "../constant";
 
 const DEPARTMENTS = [
@@ -60,54 +59,33 @@ const Application = () => {
   const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  // Fetch shortlisted candidates from backend API
+  // The public results page should reflect the approved Round 2 shortlist only.
   useEffect(() => {
     let isMounted = true;
-    const fetchResults = async () => {
+    const loadResults = () => {
       setIsLoading(true);
       try {
-        const response = await getShortlistedCandidates();
-        if (response?.data?.candidates && response.data.candidates.length > 0 && isMounted) {
-          const formatted = response.data.candidates.map((c) => ({
-            id: c._id || c.id,
-            name: c.personalDetails?.name || c.name || "Applicant",
-            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
-            department: c.department,
-            branch: c.personalDetails?.branch || c.branch || "",
-            campus: c.personalDetails?.campus || c.campus || "",
-            status: c.status || "shortlisted",
-          }));
-          setDbCandidates(formatted);
-        } else if (isMounted) {
-          setDbCandidates(constantData.map((c, idx) => ({
-            id: c._id?.$oid || c._id || `cand-${idx}`,
-            name: c.personalDetails?.name || c.name || "Applicant",
-            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
-            department: c.department,
-            branch: c.personalDetails?.branch || c.branch || "",
-            campus: c.personalDetails?.campus || c.campus || "",
-            status: c.status || "shortlisted",
-          })));
-        }
-      } catch (err) {
-        console.warn("Backend API unavailable; using constant dataset fallback", err);
+        const formatted = constantData.map((c, idx) => ({
+          id: c._id?.$oid || c._id || `cand-${idx}`,
+          name: c.personalDetails?.name || c.name || "Applicant",
+          rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
+          department: c.department,
+          branch: c.personalDetails?.branch || c.branch || "",
+          campus: c.personalDetails?.campus || c.campus || "",
+          status: c.status || "shortlisted",
+        }));
+
         if (isMounted) {
-          setDbCandidates(constantData.map((c, idx) => ({
-            id: c._id?.$oid || c._id || `cand-${idx}`,
-            name: c.personalDetails?.name || c.name || "Applicant",
-            rollNumber: c.personalDetails?.rollNumber || c.rollNumber || "N/A",
-            department: c.department,
-            branch: c.personalDetails?.branch || c.branch || "",
-            campus: c.personalDetails?.campus || c.campus || "",
-            status: c.status || "shortlisted",
-          })));
+          setDbCandidates(formatted);
         }
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    fetchResults();
+    loadResults();
     return () => {
       isMounted = false;
     };
