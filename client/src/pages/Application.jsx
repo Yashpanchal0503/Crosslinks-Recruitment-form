@@ -413,17 +413,17 @@ const Application = () => {
                     className="glass-card rounded-2xl p-4 sm:p-5 border border-border/70 hover:border-accent/60 transition-all duration-300 group flex items-center justify-between gap-3 shadow-md hover:shadow-xl bg-card/85"
                   >
                     <div className="min-w-0 pr-2">
-                      <h3 className="text-base sm:text-lg font-bold text-foreground truncate group-hover:text-accent transition-colors font-sans tracking-tight">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground truncate group-hover:text-accent transition-colors font-sans tracking-tight brightness-110">
                         {candidate.name}
                       </h3>
 
                       <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/60 tracking-wider">
+                        <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md bg-foreground/10 text-foreground border border-border/70 tracking-wider shadow-sm brightness-110">
                           {candidate.rollNumber}
                         </span>
 
                         {candidate.branch && (
-                          <span className="text-[11px] font-mono text-muted-foreground">
+                          <span className="text-[11px] font-mono text-muted-foreground/90">
                             {candidate.branch}
                             {candidate.campus ? ` • ${candidate.campus}` : ""}
                           </span>
@@ -433,7 +433,7 @@ const Application = () => {
 
                     {/* Status Badge */}
                     <div className="shrink-0">
-                      <div className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-semibold flex items-center gap-1.5 shadow-xs">
+                      <div className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-mono font-semibold flex items-center gap-1.5 shadow-sm brightness-110">
                         <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                         <span className="hidden xs:inline">Shortlisted</span>
                       </div>
