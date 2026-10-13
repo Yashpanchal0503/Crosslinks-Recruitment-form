@@ -210,6 +210,24 @@ const Application = () => {
             </span>
           </motion.h1>
 
+          {/* Round Navigation Switcher Capsule */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="mt-5 inline-flex items-center p-1.5 rounded-full bg-muted/60 border border-border/80 shadow-inner select-none"
+          >
+            <div className="px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-accent text-accent-foreground shadow-sm shadow-accent/20">
+              Round 1 Results (Active)
+            </div>
+            <Link
+              to="/round2"
+              className="px-4 py-1.5 rounded-full text-xs font-mono font-medium text-muted-foreground hover:text-foreground transition-all"
+            >
+              Round 2 Results
+            </Link>
+          </motion.div>
+
           {/* Subheading Notice Box */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -224,11 +242,11 @@ const Application = () => {
                     <Sparkles className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm sm:text-base font-medium text-foreground leading-snug">
-                      Round 2 Tasks are now live for shortlisted candidates!
+                    <p className="text-sm sm:text-base font-bold text-foreground leading-snug">
+                      Round 2 Results are officially declared!
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Verify your shortlist status and access your domain assignment.
+                      Check the shortlisted candidates for all 5 departments in Round 2.
                     </p>
                   </div>
                 </div>
@@ -239,7 +257,7 @@ const Application = () => {
                     to="/round2"
                     className="h-10 px-5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-bold inline-flex items-center gap-2 transition-all shadow-md shadow-accent/20 hover:scale-105 group cursor-pointer"
                   >
-                    <span>Go to Round 2 Tasks</span>
+                    <span>View Round 2 Results</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
