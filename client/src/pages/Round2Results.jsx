@@ -481,12 +481,6 @@ const Round2Results = () => {
                         <span className="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md bg-muted/70 text-foreground border border-border/60 tracking-wider">
                           {candidate.rollNumber}
                         </span>
-
-                        {candidate.branch && (
-                          <span className="text-[11px] font-mono text-muted-foreground truncate max-w-[180px]">
-                            {candidate.branch}
-                          </span>
-                        )}
                       </div>
                     </div>
 
