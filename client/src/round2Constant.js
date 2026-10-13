@@ -45,7 +45,7 @@ export const round2StaticCandidates = [
   { name: "Avni Singla", rollNumber: "2026UEE4216", department: "Content", branch: "Electrical Engineering" },
   { name: "Daksh", rollNumber: "2026UIT3027", department: "Content", branch: "Information Technology" },
   { name: "Evika Jain", rollNumber: "2026UME1088", department: "Content", branch: "Mechanical Engineering" },
-  { name: "Gaurang", rollNumber: "2026UEC2709", department: "Content", branch: "Electronics & Comm." },
+  { name: "Gaurang Chauhan", rollNumber: "2026UME4159", department: "Content", branch: "Electronics & Comm." },
   { name: "Ishaan Babuta", rollNumber: "2026UBA9032", department: "Content", branch: "Management Studies" },
   { name: "Kakul Verma", rollNumber: "2026UEE4507", department: "Content", branch: "Electrical Engineering" },
   { name: "Kartik Kumar", rollNumber: "2026UIT3335", department: "Content", branch: "Information Technology" },
