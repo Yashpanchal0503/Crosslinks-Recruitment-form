@@ -16,7 +16,8 @@ import {
   UserCheck,
   AlertCircle,
   Check,
-  ArrowRight
+  ArrowRight,
+  Trophy
 } from "lucide-react";
 import Navbar from "../components/common/Navbar";
 import CursorBlob from "../components/common/CursorBlob";
@@ -184,14 +185,15 @@ const Application = () => {
       <main className="max-w-5xl mx-auto pt-28 sm:pt-36 pb-20 sm:pb-28 px-4 sm:px-6 relative z-10">
         {/* Top of Page - Hero Section */}
         <section className="flex flex-col items-center justify-center text-center mb-8 sm:mb-10 w-full">
-          <div className="flex justify-center w-full mb-3.5 sm:mb-4">
+          <div className="flex justify-center w-full mb-3.5 sm:mb-4 px-2">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-xs font-semibold tracking-wider uppercase"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-accent/30 bg-accent/10 text-accent font-mono text-[10px] sm:text-xs font-semibold tracking-wider uppercase whitespace-nowrap"
             >
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              CROSSLINKS RECRUITMENTS 2026 • ROUND 1
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent animate-pulse shrink-0" />
+              <span className="hidden sm:inline">CROSSLINKS RECRUITMENTS 2026 • ROUND 1</span>
+              <span className="sm:hidden">CROSSLINKS • ROUND 1</span>
             </motion.div>
           </div>
 
@@ -200,7 +202,7 @@ const Application = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.05 }}
-            className="w-full text-center tracking-tight text-4xl sm:text-6xl md:text-7xl font-extrabold text-foreground font-sans flex flex-wrap items-baseline justify-center gap-x-3.5 select-none"
+            className="w-full text-center tracking-tight text-3xl sm:text-5xl md:text-7xl font-extrabold text-foreground font-sans flex flex-wrap items-baseline justify-center gap-x-2 sm:gap-x-3.5 select-none px-2"
           >
             <span className="font-display font-black tracking-tight uppercase">
               Round 1
@@ -215,17 +217,24 @@ const Application = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="mt-5 inline-flex items-center p-1.5 rounded-full bg-muted/60 border border-border/80 shadow-inner select-none"
+            className="mt-5 inline-flex items-center p-1.5 rounded-full bg-muted/60 border border-border/80 shadow-inner select-none flex-wrap justify-center gap-1"
           >
-            <div className="px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-accent text-accent-foreground shadow-sm shadow-accent/20">
-              Round 1 Results (Active)
-            </div>
+            <Link
+              to="/"
+              className="px-4 py-1.5 rounded-full text-xs font-mono font-medium text-muted-foreground hover:text-foreground transition-all flex items-center gap-1.5"
+            >
+              <Trophy className="w-3.5 h-3.5 text-accent" />
+              <span>Final Results</span>
+            </Link>
             <Link
               to="/round2"
               className="px-4 py-1.5 rounded-full text-xs font-mono font-medium text-muted-foreground hover:text-foreground transition-all"
             >
               Round 2 Results
             </Link>
+            <div className="px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-accent text-accent-foreground shadow-sm shadow-accent/20">
+              Round 1 Results (Active)
+            </div>
           </motion.div>
 
           {/* Subheading Notice Box */}
@@ -243,21 +252,21 @@ const Application = () => {
                   </div>
                   <div>
                     <p className="text-sm sm:text-base font-bold text-foreground leading-snug">
-                      Round 2 Results are officially declared!
+                      Final Recruitment Results are declared!
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Check the shortlisted candidates for all 5 departments in Round 2.
+                      Check the 24 newly inducted members of CrossLinks NSUT.
                     </p>
                   </div>
                 </div>
 
-                {/* Direct Action Button - Round 2 */}
+                {/* Direct Action Button - Final Results */}
                 <div className="flex items-center shrink-0 w-full sm:w-auto justify-center gap-2">
                   <Link
-                    to="/round2"
+                    to="/"
                     className="h-10 px-5 rounded-xl bg-accent text-accent-foreground text-xs sm:text-sm font-bold inline-flex items-center gap-2 transition-all shadow-md shadow-accent/20 hover:scale-105 group cursor-pointer"
                   >
-                    <span>View Round 2 Results</span>
+                    <span>View Final Results</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
